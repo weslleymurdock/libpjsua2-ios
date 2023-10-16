@@ -30,6 +30,12 @@ jobs:
     steps:
     - name: install dependencies 
       run: brew install swig sipp nasm
+    
+  openh264:
+    runs-on: macos-latest
+    permissions:
+          contents: write
+    steps: 
     - uses: actions/checkout@v4
       with:
         repository: 'cisco/openh264'
@@ -38,7 +44,6 @@ jobs:
     - name: build openh264
       run: |
         h264_target_path="${{ github.workspace}}/openh264"
-        mkdir -p $h264_target_path 
         cd ${{ github.workspace }}/openh264
         archs=( armv7 armv7s arm64 i386 x86_64 )
         h264_headers_dir="${h264_target_path}/include/wels"
@@ -73,14 +78,11 @@ jobs:
           h264_sed_dst="${h264_sed_dst//\//\\/}"
           sed -i.deleteme "s/${h264_sed_src}/${h264_sed_dst}/" "${{ github.workspace }}/openh264/${h264_makefile}"
           rm "${{ github.workspace }}/openh264/${h264_makefile}.deleteme"
-          ls .
-          cd ${{ github.workspace }}/openh264/
-          ls .
+           
           echo "--- Run make file for $arch"
-          make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No >> "${h264_log}"  || exit
-          make OS=ios ARCH=$arc SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No install >> "${h264_log}" || exit
-          make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No clean >> "${h264_log}" || exit
-
+          make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No >> "${h264_log}"  
+          make OS=ios ARCH=$arc SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No install >> "${h264_log}"  
+          make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No clean >> "${h264_log}"  
           mv "${h264_makefile_bak}" "${h264_makefile}"
 
           popd > /dev/null
@@ -110,7 +112,6 @@ jobs:
         mkdir -p include
         mv include2/openssl include/openssl
         popd > /dev/null 
-
     - uses: actions/checkout@v4    
       with:
         repository: 'xiph/opus'
