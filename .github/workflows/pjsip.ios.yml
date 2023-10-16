@@ -14,7 +14,9 @@ jobs:
           contents: write
     steps:
     - name: install dependencies 
-      run: brew install openssl@1.1 openh264 libvpx opencore-amr swig sipp nasm opus
+      run: |
+        brew reinstall openssl@1.1
+        brew install openh264 libvpx opencore-amr swig sipp nasm opus
     - uses: actions/checkout@v4
       with:
         repository: 'pjsip/pjproject'
