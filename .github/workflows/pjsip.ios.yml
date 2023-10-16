@@ -75,7 +75,9 @@ jobs:
           sed -i.deleteme "s/${h264_sed_src}/${h264_sed_dst}/" "${{ github.workspace }}/openh264/${h264_makefile}"
           rm "${{ github.workspace }}/openh264/${h264_makefile}.deleteme"
 
-          echo "--- Run make file for ${arch}"
+          cd ${{ github.workspace }}/openh264/
+
+          echo "--- Run make file for $arch"
           make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No >> "${h264_log}"  || exit
           make OS=ios ARCH=$arc SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No install >> "${h264_log}" || exit
           make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No clean >> "${h264_log}" || exit
