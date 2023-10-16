@@ -20,7 +20,7 @@ jobs:
         repository: 'pjsip/pjproject'
         path: 'pjproject' 
     - name: config site
-      run: cd ${{ github.workspace }}/pjproject/pjlib/include/pj && cp config_site_test.h config_site.h && echo "#define PJ_CONFIG_IPHONE 1" >> config_site.h && echo "#define PJMEDIA_HAS_VIDEO 1" >> config_site.h && echo "#define PJMEDIA_HAS_OPENH264_CODEC 1" >> config_site.h && echo "#define PJMEDIA_VIDEO_DEV_HAS_OPENGL 1" >> config_site.h && echo "#define PJMEDIA_VIDEO_DEV_HAS_OPENGL_ES 1" >> config_site.h && echo "#define PJMEDIA_VIDEO_DEV_HAS_IOS_OPENGL 1" >> config_site.h && echo "#include <OpenGLES/ES3/glext.h>" >> config_site.h
+      run: cd ${{ github.workspace }}/pjproject/pjlib/include/pj && cp config_site_test.h config_site.h && echo "#define PJ_CONFIG_IPHONE 1" >> config_site.h "#define PJMEDIA_HAS_VIDEO 1" >> config_site.h && echo "#define PJMEDIA_HAS_VID_TOOLBOX_CODEC 1" >> config_site.h
     - name: configure iphone armv7
       run: |
         cd ${{ github.workspace }}/pjproject/
