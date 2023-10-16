@@ -15,7 +15,14 @@ env:
   ENABLE_ZRTP: false
   HAS_BITCODE: true
   HAS_IPV6: false
-  
+  ARCHS: |
+        (
+          "armv7"
+          "armv7s"
+          "arm64"
+          "i386"
+          "x86_64"
+          )
 
 on:
   push:
@@ -31,6 +38,74 @@ jobs:
     steps:
     - name: install dependencies
       run: brew install swig sipp nasm
+    - uses: actions/checkout@v4
+      with:
+        repository: 'cisco/openh264'
+        path: 'openh264'  
+        ref: ${{ env.H264_VERSION }}
+    - name: build openh264
+      run: |
+        h264_target_path="${{ github.workspace}}/openh264/src"
+        mkdir -p $h264_target_path 
+        cd ${{ github.workspace }}/openh264/src
+        archs = ${{ env.ARCHS }}
+        h264_headers_dir="${h264_target_path}/include/wels"
+        if [ -d "${h264_headers_dir}" ]; then
+            rm -rf "${h264_headers_dir}"
+        fi
+        mkdir -p "${h264_headers_dir}"
+        h264_lipo_args=""
+        for arch in "${arch[*]}" 
+        do
+          h264_makefile="Makefile"
+          h264_makefile_bak="Makefile.bak"
+          h264_prefix="${{ github.workspace }}/openh264/build/$arch"
+          h264_log="$h264_prefix/build.log"
+
+          mkdir -p "${h264_prefix}/logs"
+
+          pushd . > /dev/null
+
+          cd $h264_target_path
+
+          if [ -d "${h264_prefix}" ]; then
+              rm -rf ${h264_prefix}
+          fi
+          mkdir -p  ${h264_prefix}
+
+          echo "Building h264 for ${arch}"
+
+          cp "${h264_makefile}" "${h264_makefile_bak}"
+
+          h264_sed_src="^PREFIX=.*"
+          h264_sed_dst="PREFIX=${h264_prefix}"
+          h264_sed_dst="${h264_sed_dst//\//\\/}"
+          sed -i.deleteme "s/${h264_sed_src}/${h264_sed_dst}/" "${h264_makefile}"
+          rm ${h264_makefile}.deleteme
+
+          echo "--- Run make file for ${arch}"
+          make OS=ios ARCH=${arch} SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No >> "${h264_log}"  || exit
+          make OS=ios ARCH=${arch} SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No install >> "${h264_log}" || exit
+          make OS=ios ARCH=${arch} SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No clean >> "${h264_log}" || exit
+
+          mv "${h264_makefile_bak}" "${h264_makefile}"
+
+          popd > /dev/null
+
+          h264_lipo_args="${h264_lipo_args} -arch ${arch} ${{ github.workspace }}/openh264/build/${arch}/lib/libopenh264.a"
+        done
+
+        if [ ! -d "${{ github.workspace }}/openh264/lib" ]; then
+            mkdir -p "${{ github.workspace }}/openh264/lib"
+        fi
+
+        echo "--- Lipo openH264"
+        xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${{ github.workspace }}/openh264/lib/libopenh264.a" || exit
+
+        echo "--- Copying header files"
+        cp -R "${{ github.workspace }}/openh264/build/${arch}/include/" "${{ github.workspace }}/openh264/include"
+
+        echo "Done compiling openh264"
   clone_pjsip:
     runs-on: macos-latest
     permissions:
@@ -40,16 +115,7 @@ jobs:
       with:
         repository: 'pjsip/pjproject'
         path: 'pjproject'
-  clone_h264:
-    runs-on: macos-latest
-    permissions:
-          contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: 'cisco/openh264'
-          path: 'openh264'  
-          ref: ${{ env.H264_VERSION }}
+ 
   clone_ssl:
     runs-on: macos-latest
     permissions:
@@ -57,8 +123,8 @@ jobs:
     steps: 
     - uses: actions/checkout@v4
       with:
-        repository: 'x2on/OpenSSL-for-iPhone'
-        path: 'ssl'
+          repository: 'x2on/OpenSSL-for-iPhone'
+          path: 'ssl'
   clone_opus:
     runs-on: macos-latest
     permissions:
@@ -66,12 +132,5 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        repository: 'xiph/opus'
-        path: 'opus'
-  show_files:
-    runs-on: macos-latest
-    permissions:
-        contents: write
-    steps:
-      - name: show files
-        run: ls ${{ github.workspace }} 
+          repository: 'xiph/opus'
+          path: 'opus'      
