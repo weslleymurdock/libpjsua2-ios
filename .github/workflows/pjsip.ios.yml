@@ -15,14 +15,7 @@ env:
   ENABLE_ZRTP: false
   HAS_BITCODE: true
   HAS_IPV6: false
-  ARCHS: |
-        (
-          "armv7"
-          "armv7s"
-          "arm64"
-          "i386"
-          "x86_64"
-          )
+  ARCHS: ( armv7, armv7s, arm64, i386, x86_64 )
 
 on:
   push:
@@ -31,12 +24,12 @@ on:
       types: [opened, synchronize, reopened]  
       
 jobs:
-  instal_dependencies:
+  build:
     runs-on: macos-latest
     permissions:
           contents: write
     steps:
-    - name: install dependencies
+    - name: install dependencies 
       run: brew install swig sipp nasm
     - uses: actions/checkout@v4
       with:
@@ -106,31 +99,125 @@ jobs:
         cp -R "${{ github.workspace }}/openh264/build/${arch}/include/" "${{ github.workspace }}/openh264/include"
 
         echo "Done compiling openh264"
-  clone_pjsip:
-    runs-on: macos-latest
-    permissions:
-          contents: write
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        repository: 'pjsip/pjproject'
-        path: 'pjproject'
- 
-  clone_ssl:
-    runs-on: macos-latest
-    permissions:
-          contents: write
-    steps: 
     - uses: actions/checkout@v4
       with:
           repository: 'x2on/OpenSSL-for-iPhone'
-          path: 'ssl'
-  clone_opus:
-    runs-on: macos-latest
-    permissions:
-          contents: write
-    steps:
+          path: 'ssl' 
+    - name: build ssl
+      run: | 
+        USE_ARCHS=( armv7, armv7s, arm64, i386, x86_64 )
+        pushd . > /dev/null
+        cd ${{ github.workspace }}/ssl
+        
+        ./build-libssl.sh --archs="${USE_ARCHS[*]// /\s}" || exit
+        mv include include2
+        mkdir -p include
+        mv include2/openssl include/openssl
+        popd > /dev/null 
+
+    - uses: actions/checkout@v4    
+      with:
+        repository: 'xiph/opus'
+        path: 'opus'
+        ref: 'v1.3.1'
+    - name: build opus
+      run: |
+        USE_ARCHS=( armv7, armv7s, arm64, i386, x86_64 )
+        opus_opt_cflags="-Ofast -flto -g"
+        opus_opt_ldflags="-flto"
+        opus_opt_config_args=""
+
+        xcode_dev_path=`xcode-select -print-path`
+
+        opus_repo_dir=${{ github.workspace }}/opus
+        opus_output_dir="${opus_repo_dir}/dependencies"
+        opus_build_build_dir="${opus_repo_dir}/build"
+        opus_src_dir="${opus_build_build_dir}/src"
+        opus_inter_dir="${opus_build_build_dir}/built"
+
+        mkdir -p "${opus_output_dir}/include"
+        mkdir -p "${opus_output_dir}/lib"
+        mkdir -p $opus_src_dir
+        mkdir -p $opus_inter_dir
+ 
+        ccache=""
+
+        for arch in ${USE_ARCHS[@]}
+        do
+            echo "-- Opus: Compiling $arch"
+            opus_extra_cflags="-arch $arch"
+            if [ "$arch" == "i386" ] || [ "$arch" == "x86_64" ]; then
+              os_platform="iPhoneSimulator"
+              opus_extra_flags="--with-pic"
+              opus_extra_config="--host=$arch-apple-darwin"
+          else
+              os_platform="iPhoneOS"
+              opus_extra_config="--host=arm-apple-darwin"
+          fi
+
+          mkdir -p "${opus_inter_dir}/${os_platform}${{ env.IOS_SDK_VERSION }}-${arch}.sdk"
+
+          ./configure \
+              --enable-float-approx --disable-shared --enable-static \
+              --with-pic --disable-extra-programs --disable-doc ${opus_extra_config} \
+              --prefix="${opus_inter_dir}/${os_platform}${{ env.IOS_SDK_VERSION }}-${arch}.sdk" \
+              ${opus_extra_config} \
+              LDFLAGS="$LDFLAGS ${opus_opt_ldflags} -fPIE -miphoneos-version-min=${{ env.MIN_IOS_VERSION }} -L${opus_output_dir}/lib" \
+              CFLAGS="$CFLAGS ${opus_extra_cflags} ${opus_opt_cflags} -fPIE -miphoneos-version-min=${{ env.MIN_IOS_VERSION }} -I${opus_output_dir}/include -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk" || exit
+
+          make -j4 || exit
+
+          make install || exit
+
+          make clean || exit
+        done
+
+        echo "Building opus library..."
+        opus_output_libs="libopus.a"
+        for opus_output_lib in ${opus_output_libs}; do
+            opus_input_libs=""
+            for arch in ${USE_ARCHS[@]}; do
+                if [ "${arch}" == "i386" ] || [ "${arch}" == "x86_64" ]; then
+                    os_platform="iPhoneSimulator"
+                else
+                    os_platform="iPhoneOS"
+                fi
+
+                opus_input_arch_lib="${opus_inter_dir}/${os_platform}${{ env.IOS_SDK_VERSION }}-${arch}.sdk/lib/${opus_output_lib}"
+
+                if [ -e $opus_input_arch_lib ]; then
+                    opus_input_libs="${opus_input_libs} ${opus_input_arch_lib}"
+                fi
+            done
+
+            if [ -n "$opus_input_libs" ]; then
+                echo "** lipo libs"
+
+                lipo -create $opus_input_libs -output "$opus_output_dir/lib/${opus_output_lib}" || exit
+            else
+                echo "$opus_output_lib does not exist, skipping (are the dependencies installed?)"
+            fi
+
+        done
+
+        echo "Done lipo-ing libs"
+        echo "Start copying to correct directory"
+
+        for arch in ${USE_ARCHS[@]}; do
+            if [ "${arch}" == "i386" ] || [ "${arch}" == "x86_64" ]; then
+                os_platform="iPhoneSimulator"
+            else
+                os_platform="iPhoneOS"
+            fi
+
+            cp -R ${opus_inter_dir}/${os_platform}${{ env.IOS_SDK_VERSION }}-${arch}.sdk/include/* ${opus_output_dir}/include/
+
+            if [ $? == "0" ]; then
+                break
+            fi
+        done
     - uses: actions/checkout@v4
       with:
-          repository: 'xiph/opus'
-          path: 'opus'      
+        repository: 'pjsip/pjproject'
+        path: 'pjproject' 
+    
