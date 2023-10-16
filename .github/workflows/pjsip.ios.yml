@@ -67,7 +67,7 @@ jobs:
 
           echo "Building h264 for $arch"
 
-          cp "${h264_makefile}" "${h264_makefile_bak}"
+          cp "${{ github.workspace }}/openh264/${h264_makefile}" "${{ github.workspace }}/openh264/${h264_makefile_bak}"
 
           h264_sed_src="^PREFIX=.*"
           h264_sed_dst="PREFIX=${h264_prefix}"
