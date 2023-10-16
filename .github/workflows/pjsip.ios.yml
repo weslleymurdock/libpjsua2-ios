@@ -72,8 +72,8 @@ jobs:
           h264_sed_src="^PREFIX=.*"
           h264_sed_dst="PREFIX=${h264_prefix}"
           h264_sed_dst="${h264_sed_dst//\//\\/}"
-          sed -i.deleteme "s/${h264_sed_src}/${h264_sed_dst}/" "${h264_makefile}"
-          rm ${h264_makefile}.deleteme
+          sed -i.deleteme "s/${h264_sed_src}/${h264_sed_dst}/" "${{ github.workspace }}/openh264/${h264_makefile}"
+          rm "${{ github.workspace }}/openh264/${h264_makefile}.deleteme"
 
           echo "--- Run make file for ${arch}"
           make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No >> "${h264_log}"  || exit
