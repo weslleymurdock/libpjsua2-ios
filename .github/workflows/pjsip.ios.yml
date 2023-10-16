@@ -37,7 +37,7 @@ jobs:
         ref: ${{ env.H264_VERSION }}
     - name: build openh264
       run: |
-        h264_target_path="${{ github.workspace}}/openh264/src"
+        h264_target_path="${{ github.workspace}}/openh264"
         mkdir -p $h264_target_path 
         cd ${{ github.workspace }}/openh264
         archs=( armv7 armv7s arm64 i386 x86_64 )
@@ -84,8 +84,7 @@ jobs:
           mv "${h264_makefile_bak}" "${h264_makefile}"
 
           popd > /dev/null
-
-          h264_lipo_args="$h264_lipo_args -arch $arch ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a"
+ 
         done
 
         if [ ! -d "${{ github.workspace }}/openh264/lib" ]; then
@@ -93,11 +92,8 @@ jobs:
         fi
 
         echo "--- Lipo openH264"
-        xcrun -sdk iphoneos lipo -arch armv7 ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -arch armv7s ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -arch arm64 ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -arch i386 ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -arch x86_64 ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -create -output "${{ github.workspace }}/openh264/lib/libopenh264.a" || exit
-
-        echo "--- Copying header files"
-        cp -R "${{ github.workspace }}/openh264/build/$arch/include/" "${{ github.workspace }}/openh264/include"
-
+        xcrun -sdk iphoneos lipo -arch armv7 ${{ github.workspace }}/openh264/build/armv7/lib/libopenh264.a -arch armv7s ${{ github.workspace }}/openh264/build/armv7s/lib/libopenh264.a -arch arm64 ${{ github.workspace }}/openh264/build/arm64/lib/libopenh264.a -arch i386 ${{ github.workspace }}/openh264/build/i386/lib/libopenh264.a -arch x86_64 ${{ github.workspace }}/openh264/build/x86_64/lib/libopenh264.a -create -output "${{ github.workspace }}/openh264/lib/libopenh264.a" || exit
+        
         echo "Done compiling openh264"
     - uses: actions/checkout@v4
       with:
