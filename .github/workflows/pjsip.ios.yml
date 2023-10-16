@@ -25,7 +25,7 @@ jobs:
       run: |
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch armv7" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
-    - name: make
+    - name: make armv7
       run: |
         cd ${{ github.workspace }}/pjproject/
         make dep && make
@@ -35,7 +35,7 @@ jobs:
       run: |
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch armv7s" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
-    - name: make
+    - name: make armv7s
       run: |
         cd ${{ github.workspace }}/pjproject/
         make dep && make
@@ -45,7 +45,7 @@ jobs:
       run: |
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch arm64" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
-    - name: make
+    - name: make arm64
       run: |
         cd ${{ github.workspace }}/pjproject/
         make dep && make
@@ -55,7 +55,7 @@ jobs:
       run: |
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch i386" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
-    - name: make
+    - name: make x86
       run: | 
         cd ${{ github.workspace }}/pjproject/
         make dep && make
@@ -65,7 +65,7 @@ jobs:
       run: |
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch x86_64" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
-    - name: make
+    - name: make x86_64
       run: |
         cd ${{ github.workspace }}/pjproject/
         make dep && make
