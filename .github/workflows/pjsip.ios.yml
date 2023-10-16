@@ -26,7 +26,9 @@ jobs:
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch armv7" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
     - name: make
-      run: make
+      run: |
+        cd ${{ github.workspace }}/pjproject/
+        make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     - name: configure iphone armv7s
@@ -34,7 +36,9 @@ jobs:
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch armv7s" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
     - name: make
-      run: make
+      run: |
+        cd ${{ github.workspace }}/pjproject/
+        make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     - name: configure iphone arm64
@@ -42,7 +46,9 @@ jobs:
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch arm64" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
     - name: make
-      run: make
+      run: |
+        cd ${{ github.workspace }}/pjproject/
+        make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     - name: configure iphone i386
@@ -50,7 +56,9 @@ jobs:
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch i386" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
     - name: make
-      run: make
+      run: | 
+        cd ${{ github.workspace }}/pjproject/
+        make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     - name: configure iphone x86_64
@@ -58,7 +66,9 @@ jobs:
         cd ${{ github.workspace }}/pjproject/
         MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch x86_64" CFLAGS="-g -I/usr/local/include -O2 -fembed-bitcode -fPIC" LDFLAGS="-O2 -fembed-bitcode -L/usr/local/lib -lstdc++" CXXFLAGS="-g -fPIC" ./configure-iphone
     - name: make
-      run: make
+      run: |
+        cd ${{ github.workspace }}/pjproject/
+        make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     
