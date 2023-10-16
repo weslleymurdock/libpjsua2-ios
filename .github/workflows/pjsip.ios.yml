@@ -85,7 +85,7 @@ jobs:
 
           popd > /dev/null
 
-          h264_lipo_args="${h264_lipo_args} -arch $arch ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a"
+          h264_lipo_args="$h264_lipo_args -arch $arch ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a"
         done
 
         if [ ! -d "${{ github.workspace }}/openh264/lib" ]; then
@@ -93,7 +93,7 @@ jobs:
         fi
 
         echo "--- Lipo openH264"
-        xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${{ github.workspace }}/openh264/lib/libopenh264.a" || exit
+        xcrun -sdk iphoneos lipo -arch armv7 ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -arch armv7s ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -arch arm64 ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -arch i386 ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -arch x86_64 ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a -create -output "${{ github.workspace }}/openh264/lib/libopenh264.a" || exit
 
         echo "--- Copying header files"
         cp -R "${{ github.workspace }}/openh264/build/$arch/include/" "${{ github.workspace }}/openh264/include"
