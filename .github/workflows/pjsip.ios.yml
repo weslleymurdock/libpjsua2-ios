@@ -14,9 +14,8 @@ env:
   INDEPENDENT_WEBRTC: false
   ENABLE_ZRTP: false
   HAS_BITCODE: true
-  HAS_IPV6: false
-  ARCHS: ( armv7, armv7s, arm64, i386, x86_64 )
-
+  HAS_IPV6: false 
+  
 on:
   push:
     branches: [ main, develop ]
@@ -41,7 +40,7 @@ jobs:
         h264_target_path="${{ github.workspace}}/openh264/src"
         mkdir -p $h264_target_path 
         cd ${{ github.workspace }}/openh264/src
-        archs = ${{ env.ARCHS }}
+        archs = ( armv7, armv7s, arm64, i386, x86_64 )
         h264_headers_dir="${h264_target_path}/include/wels"
         if [ -d "${h264_headers_dir}" ]; then
             rm -rf "${h264_headers_dir}"
