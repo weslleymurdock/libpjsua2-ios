@@ -39,7 +39,7 @@ jobs:
       run: |
         h264_target_path="${{ github.workspace}}/openh264/src"
         mkdir -p $h264_target_path 
-        cd ${{ github.workspace }}/openh264/src
+        cd ${{ github.workspace }}/openh264
         archs=( armv7 armv7s arm64 i386 x86_64 )
         h264_headers_dir="${h264_target_path}/include/wels"
         if [ -d "${h264_headers_dir}" ]; then
@@ -65,7 +65,7 @@ jobs:
           fi
           mkdir -p  ${h264_prefix}
 
-          echo "Building h264 for ${arch}"
+          echo "Building h264 for $arch"
 
           cp "${h264_makefile}" "${h264_makefile_bak}"
 
@@ -76,15 +76,15 @@ jobs:
           rm ${h264_makefile}.deleteme
 
           echo "--- Run make file for ${arch}"
-          make OS=ios ARCH=${arch} SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No >> "${h264_log}"  || exit
-          make OS=ios ARCH=${arch} SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No install >> "${h264_log}" || exit
-          make OS=ios ARCH=${arch} SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No clean >> "${h264_log}" || exit
+          make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No >> "${h264_log}"  || exit
+          make OS=ios ARCH=$arc SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No install >> "${h264_log}" || exit
+          make OS=ios ARCH=$arch SDK_MIN=${{ env.MIN_IOS_VERSION}} v=No clean >> "${h264_log}" || exit
 
           mv "${h264_makefile_bak}" "${h264_makefile}"
 
           popd > /dev/null
 
-          h264_lipo_args="${h264_lipo_args} -arch ${arch} ${{ github.workspace }}/openh264/build/${arch}/lib/libopenh264.a"
+          h264_lipo_args="${h264_lipo_args} -arch $arch ${{ github.workspace }}/openh264/build/$arch/lib/libopenh264.a"
         done
 
         if [ ! -d "${{ github.workspace }}/openh264/lib" ]; then
@@ -95,7 +95,7 @@ jobs:
         xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${{ github.workspace }}/openh264/lib/libopenh264.a" || exit
 
         echo "--- Copying header files"
-        cp -R "${{ github.workspace }}/openh264/build/${arch}/include/" "${{ github.workspace }}/openh264/include"
+        cp -R "${{ github.workspace }}/openh264/build/$arch/include/" "${{ github.workspace }}/openh264/include"
 
         echo "Done compiling openh264"
     - uses: actions/checkout@v4
