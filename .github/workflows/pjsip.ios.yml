@@ -24,7 +24,7 @@ jobs:
     - name: configure iphone
       run: |
         cd ${{ github.workspace }}/pjproject/
-        MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch armv7" CFLAGS="-g -I/usr/local/include -I/usr/local/opt/openssl@1.1/1.1.1w/include -I/usr/local/opt/openh264/2.3.1/include -DHAS_VID_CODEC_TEST=0 -fPIC" LDFLAGS="-L/usr/local/lib -L/usr/local/opt/openssl@1.1/1.1.1w/lib -L/usr/local/opt/openh264/2.3.1/lib -lstdc++" CXXFLAGS="-g -fPIC" --with-ssl=/usr/local/opt/openssl@1.1--with-openh264=/usr/local/opt/openh264 --with-opus=/usr/local/opt/opus ./configure-iphone
+        MIN_IOS="-miphoneos-version-min=10.0" ARCH="-arch armv7" CFLAGS="-g -I/usr/local/include -I/usr/local/opt/openssl@1.1/1.1.1w/include -I/usr/local/opt/openh264/2.3.1/include -DHAS_VID_CODEC_TEST=0 -fPIC" LDFLAGS="-L/usr/local/lib -L/usr/local/opt/openssl@1.1/1.1.1w/lib -L/usr/local/opt/openh264/2.3.1/lib -lstdc++" CXXFLAGS="-g -fPIC" --with-ssl=/usr/local/opt/openssl@1.1 --with-openh264=/usr/local/opt/openh264 --with-opus=/usr/local/opt/opus ./configure-iphone
     - name: make
       run: make dep && make
     - name: swig bindings
