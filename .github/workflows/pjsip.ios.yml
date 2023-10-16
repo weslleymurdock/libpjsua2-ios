@@ -28,7 +28,7 @@ jobs:
     - name: make
       run: |
         cd ${{ github.workspace }}/pjproject/
-        make
+        make dep && make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     - name: configure iphone armv7s
@@ -38,7 +38,7 @@ jobs:
     - name: make
       run: |
         cd ${{ github.workspace }}/pjproject/
-        make
+        make dep && make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     - name: configure iphone arm64
@@ -48,7 +48,7 @@ jobs:
     - name: make
       run: |
         cd ${{ github.workspace }}/pjproject/
-        make
+        make dep && make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     - name: configure iphone i386
@@ -58,7 +58,7 @@ jobs:
     - name: make
       run: | 
         cd ${{ github.workspace }}/pjproject/
-        make
+        make dep && make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     - name: configure iphone x86_64
@@ -68,7 +68,7 @@ jobs:
     - name: make
       run: |
         cd ${{ github.workspace }}/pjproject/
-        make
+        make dep && make
     - name: swig bindings
       run: cd ${{ github.workspace }}/pjproject/pjsip-apps/src/swig && make
     
