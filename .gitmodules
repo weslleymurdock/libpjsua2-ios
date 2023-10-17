@@ -1,3 +1,6 @@
 [submodule "pjproject"]
 	path = pjproject
 	url = https://github.com/pjsip/pjproject.git
+[submodule "external/openh264"]
+	path = external/openh264
+	url = https://github.com/cisco/openh264.git

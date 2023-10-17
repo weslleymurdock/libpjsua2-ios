@@ -640,29 +640,6 @@ function _merge () {
     libtool -o Pod/libpjsua2.a $a_files
 }
 
-function _xcframework () {
-    echo "xcframework"
-    cd $BASE_DIR
-
-    mkdir -p "$BASE_DIR"/framework"
-
-    
-    a_files=`find ./pjsip/temp -name *darwin_ios.a -exec printf '%s ' {} +`
-
-    if [ $SSL_SUPPORT = true ]; then
-        a_files="${a_files} ${SSL_BUILD_DIR}/lib/libssl.a ${SSL_BUILD_DIR}/lib/libcrypto.a"
-    fi
-
-    if [ $OPUS_SUPPORT = true ]; then
-        a_files="${a_files} ${OPUS_BUILD_DIR}/dependencies/lib/libopus.a"
-    fi
-
-    if [ $H264_SUPPORT = true ]; then
-        a_files="${a_files} ${H264_BUILD_DIR}/lib/libopenh264.a"
-    fi
-
-    libtool -o Pod/libpjsua2.a $a_files
-}
 
 function clean_pjsip_libs_temp () {
     rm -rf "$BASE_DIR/pjsip/temp/$arch"
@@ -796,6 +773,7 @@ function create_framework {
     echo "Done create framework $PRODUCT_NAME"
     echo "============================="
 }
+ 
 
 export -f copy_to_lib_dir
 
