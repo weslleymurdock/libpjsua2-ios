@@ -211,8 +211,7 @@ function build_h264 () {
         rm ${h264_makefile}.deleteme
 
         echo "--- Run make file for ${arch}"
-        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} all >> "${h264_log}" || exit
-        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} DESTDIR=${H264_BUILD_DIR}/out/ install || exit
+        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION}  all install   || exit
 
         mv "${h264_makefile_bak}" "${h264_makefile}"
 
