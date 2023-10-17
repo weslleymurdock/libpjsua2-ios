@@ -296,7 +296,9 @@ function build_opus () {
         fi
 
         mkdir -p "${opus_inter_dir}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"
-
+        
+        ./autogen.sh
+        
         ./configure \
             --enable-float-approx --disable-shared --enable-static \
             --with-pic --disable-extra-programs --disable-doc ${opus_extra_config} \
