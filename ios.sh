@@ -184,52 +184,40 @@ function build_h264 () {
     if [ $H264_SUPPORT = false ]; then
         return
     fi
-
     echo "Use H264"
   
     cd $H264_BUILD_DIR
-
     h264_lipo_args=""
     for arch in "${USE_ARCHS[@]}"; do
         h264_makefile="Makefile"
         h264_makefile_bak="Makefile.bak"
-        h264_prefix="${H264_BUILD_DIR}/out/lib/${arch}"
+        h264_prefix="${H264_BUILD_DIR}/builds/${arch}"
         h264_log="${h264_prefix}/build.log"
-
         mkdir -p "${h264_prefix}/logs"
 
         pushd . > /dev/null
   
-        echo "Building h264 for ${arch}"
+                echo "Building h264 for ${arch}"
 
         cp "${h264_makefile}" "${h264_makefile_bak}"
-
         h264_sed_src="^PREFIX=.*"
         h264_sed_dst="PREFIX=${h264_prefix}"
         h264_sed_dst="${h264_sed_dst//\//\\/}"
         sed -i.deleteme "s/${h264_sed_src}/${h264_sed_dst}/" "${h264_makefile}"
         rm ${h264_makefile}.deleteme
-
         echo "--- Run make file for ${arch}"
-        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION}  all install-static-lib   || exit
-
+        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} v=No >> "${h264_log}"  || exit
+        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} v=No install >> "${h264_log}" || exit
+        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} v=No clean >> "${h264_log}" || exit
         mv "${h264_makefile_bak}" "${h264_makefile}"
-
         popd > /dev/null
-
-        h264_lipo_args="${h264_lipo_args} -arch ${arch} ${H264_BUILD_DIR}/out/lib/${arch}/lib/libopenh264.a"
+        h264_lipo_args="${h264_lipo_args} -arch ${arch} ${H264_BUILD_DIR}/builds/${arch}/lib/libopenh264.a"
     done
-
-    if [ ! -d "${H264_BUILD_DIR}/out/lib" ]; then
-        mkdir -p "${H264_BUILD_DIR}/out/lib"
+    if [ ! -d "${H264_BUILD_DIR}/lib" ]; then
+        mkdir -p "${H264_BUILD_DIR}/lib"
     fi
-
     echo "--- Lipo openH264"
-    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/out/lib/lib/openh264.a" || exit
-  
-    echo "--- Copying header files"
-    cp -R "${H264_BUILD_DIR}/out/lib/${USE_ARCHS[0]}/include/" "${H264_BUILD_DIR}/out/include"
-
+    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/lib/libopenh264.a" || exit
     echo "Done compiling openh264"
 }
 
