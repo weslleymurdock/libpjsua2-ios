@@ -711,9 +711,7 @@ fi
 
 if [ $SHOW_HELP = true ]; then
     show_help
-else
-    clean_pjsip
-    download_pjsip
+else 
     build_h264
     build_ssl
     build_opus
