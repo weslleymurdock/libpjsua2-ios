@@ -10,3 +10,6 @@
 [submodule "external/zrtp"]
 	path = external/zrtp
 	url = https://github.com/wernerd/ZRTP4PJ
+[submodule "external/opus"]
+	path = external/opus
+	url = https://github.com/xiph/opus/
