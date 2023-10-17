@@ -199,14 +199,7 @@ function build_h264 () {
         mkdir -p "${h264_prefix}/logs"
 
         pushd . > /dev/null
-
-        cd $h264_target_path
-
-        if [ -d "${h264_prefix}" ]; then
-            rm -rf ${h264_prefix}
-        fi
-        mkdir -p  ${h264_prefix}
-
+  
         echo "Building h264 for ${arch}"
 
         cp "${h264_makefile}" "${h264_makefile_bak}"
