@@ -364,12 +364,8 @@ function build_opus () {
  
 function config_site () {
     echo "Creating config_site.h"
-
-    if [ -f $PJSIP_CONFIG_SITE_H ]; then
-        rm -rf $PJSIP_CONFIG_SITE_H
-    fi
-
-    echo "#define PJ_CONFIG_IPHONE 1" >> $PJSIP_CONFIG_SITE_H
+ 
+    echo "#define PJ_CONFIG_IPHONE 1" > $PJSIP_CONFIG_SITE_H
 
     if [ $INDEPENDENT_WEBRTC = true ]; then
         echo "#define PJMEDIA_HAS_SRTP 0" >> $PJSIP_CONFIG_SITE_H

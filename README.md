@@ -13,19 +13,28 @@ The future plans is upgrade the xamarin solution provided by pjsip to an MAUI ap
  
 <!-- Your badges -->
 
-### Libs automated
- - [ ] [![pjsip](https://www.pjsip.org/)](https://github.com/pjsip/pjproject)
- - [ ] [![ssl-ios](https://img.shields.io/badge/-@joykishan_sharma-blue?style=flat&logo=Telegram&logoColor=white)](https://t.me/joykishan_sharma)
- - [ ] [![openh264](https://img.shields.io/badge/-Joykishan-islamicgreen?style=flat&logo=HackerRank&logoColor=black)](https://www.hackerrank.com/Joykishan)
- - [ ] [![opus](https://img.shields.io/badge/-@joykishan120-black?style=flat&logo=Medium&logoColor=white)](https://medium.com/@joykishan120)
- - [ ] [![Independent WebRTC](https://img.shields.io/badge/-joykishan_sharma-c13584?style=flat&labelColor=c13584&logo=instagram&logoColor=white)](https://www.instagram.com/joykishan_sharma)
- - [ ] [![ZRTP](https://img.shields.io/badge/-joykishan120-c14438?style=flat&logo=Gmail&logoColor=white)](mailto:joykishan120@gmail.com)
+### Platforms automated build
 
-### TODO's: 
-* Port PJSIP Xamarin app to MAUI
+- [ ] [![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/android.yml)
+- [x] [![iOS](https://img.shields.io/badge/iOS-000000?style=for-the-badge&logo=ios&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/ios.yml)
+- [ ] [![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/linux.yml)
+- [ ] [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/win32.yml)
+- [ ] [![OSX](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/osx.yml)
+
+### Libs automated build
+
+- [ ] [![pjsip](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/pjsip/pjproject)
+- [x] [![ssl-ios](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/x2on/OpenSSL-for-iPhone)
+- [x] [![openh264](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://www.github.com/cisco/openh264)
+- [x] [![opus](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/xiph/opus/) 
+- [x] [![zrtp](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/wernerd/ZRTP4PJ)
+
+### Remaining TODO
+
+
 * Workflow for Xamarin app build.
-* Docker implementation.
-
+* Port PJSIP Xamarin app to MAUI
+ 
 <!-- Credit -->
 ### ACKNOWLEDGEMENTS 
 - [**VoIPGRID**](https://github.com/VoIPGRID) for scripts that brings me the idea of this work. 
