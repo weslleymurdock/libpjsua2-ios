@@ -503,7 +503,7 @@ function _build () {
         fi
     fi
     echo " running make for swig "
-    cd "$PJSIP_DIR/pjsip-apps/src/swig"
+    cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
     make all 
     echo "Done building for $arch"
     echo "============================="

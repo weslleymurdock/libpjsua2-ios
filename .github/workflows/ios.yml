@@ -1,0 +1,22 @@
+name: Build and Lipo pjsip with external libs for ios
+run-name: pjsip build for ios 🚀
+
+on: 
+  push:
+    branches: [ main, develop ]
+  pull_request:
+      types: [opened, synchronize, reopened]  
+      
+jobs:
+  build:
+    runs-on: macos-latest
+    permissions:
+          contents: write
+    steps:  
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: build all archs
+        run: |
+          brew install nasm autoconf automake libtool
+          ./ios.sh --ssl --opus --h264 --arch=armv7,armv7s,i386,x86_64,arm64
