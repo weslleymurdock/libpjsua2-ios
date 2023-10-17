@@ -193,7 +193,7 @@ function build_h264 () {
     for arch in "${USE_ARCHS[@]}"; do
         h264_makefile="Makefile"
         h264_makefile_bak="Makefile.bak"
-        h264_prefix="${H264_BUILD_DIR}/builds/${arch}"
+        h264_prefix="${H264_BUILD_DIR}/out/lib/${arch}"
         h264_log="${h264_prefix}/build.log"
 
         mkdir -p "${h264_prefix}/logs"
@@ -211,26 +211,28 @@ function build_h264 () {
         rm ${h264_makefile}.deleteme
 
         echo "--- Run make file for ${arch}"
-        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} v=No >> "${h264_log}"  || exit
-        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} v=No install >> "${h264_log}" || exit
+        #make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} v=No >> "${h264_log}"  || exit
+        #make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} v=No install >> "${h264_log}" || exit
         make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION} v=No clean >> "${h264_log}" || exit
 
         mv "${h264_makefile_bak}" "${h264_makefile}"
 
         popd > /dev/null
 
-        h264_lipo_args="${h264_lipo_args} -arch ${arch} ${H264_BUILD_DIR}/builds/${arch}/lib/libopenh264.a"
+        h264_lipo_args="${h264_lipo_args} -arch ${arch} ${H264_BUILD_DIR}/out/lib/${arch}/libopenh264.a"
     done
 
-    if [ ! -d "${H264_BUILD_DIR}/lib" ]; then
-        mkdir -p "${H264_BUILD_DIR}/lib"
+    if [ ! -d "${H264_BUILD_DIR}/out/lib" ]; then
+        mkdir -p "${H264_BUILD_DIR}/out/lib"
     fi
 
     echo "--- Lipo openH264"
-    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/built/lib/libopenh264.a" || exit
+    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/out/lib/libopenh264.a" || exit
+
+    mkdir -p "${H264_BUILD_DIR}/out/include"
 
     echo "--- Copying header files"
-    cp -R "${H264_BUILD_DIR}/builds/${USE_ARCHS[0]}/include/" "${H264_BUILD_DIR}/built/include"
+    cp -R "${H264_BUILD_DIR}/builds/${USE_ARCHS[0]}/include/" "${H264_BUILD_DIR}/out/include"
 
     echo "Done compiling openh264"
 }
