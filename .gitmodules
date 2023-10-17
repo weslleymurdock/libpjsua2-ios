@@ -7,3 +7,6 @@
 [submodule "external/openssl_ios"]
 	path = external/openssl_ios
 	url = https://github.com/x2on/OpenSSL-for-iPhone
+[submodule "external/zrtp"]
+	path = external/zrtp
+	url = https://github.com/wernerd/ZRTP4PJ
