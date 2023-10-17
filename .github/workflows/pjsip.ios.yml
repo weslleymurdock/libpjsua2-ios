@@ -15,6 +15,6 @@ jobs:
     steps:  
       - uses: actions/checkout@v4
         with:
-          submodules: 'true'
+          submodules: recursive
       - name: run build script for ios
         run: ./ios.sh --ssl --opus --h264 --arch=armv7,armv7s,i386,x86_64,arm64
