@@ -8,7 +8,11 @@ AVAILABLE_ARCHS=(
     "i386"
     "x86_64"
 )
-export BASE_DIR=`pwd -P`
+export PATH_REPO="/Users/runner/work/libpjsua2/libpjsua2"
+
+#export BASE_DIR=`pwd -P`
+export BASE_DIR="$PATH_REPO"
+
 export MIN_IOS_VERSION="10.0"
 export IOS_SDK_VERSION="16.2"
 export AVAILABLE_ARCHS
@@ -24,7 +28,6 @@ export ENABLE_ZRTP=false
 export HAS_BITCODE=true
 export HAS_IPV6=false
 export SHOW_HELP=false
-export RUNNER_DIR="/Users/runner/work/libpjsua2/libpjsua2/"
 export PJSIP_VERSION="2.13.1"
 export PJSIP_BASE_URL="https://github.com/pjsip/pjproject.git"
 export PJSIP_DIR="$BASE_DIR/pjsip"
@@ -43,8 +46,8 @@ export PJSIP_LIB_PATHS=(
 )
 export PJSIP_LIB_OUTPUT="$BASE_DIR/lib"
 
-export BUILD_DIR="$PJSIP_DIR/external"
-export SSL_BUILD_DIR="$BUILD_DIR/ssl"
+export BUILD_DIR="$PATH_REPO/external"
+export SSL_BUILD_DIR="$BUILD_DIR/openssl_ios"
 export ZRTP_BUILD_DIR="$BUILD_DIR/zrtp"
 export OPUS_BUILD_DIR="$BUILD_DIR/opus"
 export H264_BUILD_DIR="$BUILD_DIR/h264"
@@ -305,8 +308,8 @@ function build_zrtp () {
 	cd $PJSIP_SRC_DIR/third_party/ZRTP4PJ/build/zsrtp
 	sed -i '' -e 's#'~/devhome/pjproject.git'#'"$PJSIP_SRC_DIR"'#' Makefile
 	cd ../../zsrtp
-	sed -i '' -e 's/#define THIS_FILE "transport_zrtp.c"/#define THIS_FILE "transport_zrtp.c"\
-#define DYNAMIC_TIMER 1/' transport_zrtp.c
+	sed -i '' -e 's/#define THIS_FILE "transport_zrtp.c"/#define THIS_FILE "transport_zrtp.c" \
+    #define DYNAMIC_TIMER 1/' transport_zrtp.c
 }
 
 function build_opus () {
