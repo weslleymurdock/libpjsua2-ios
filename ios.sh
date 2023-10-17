@@ -232,7 +232,7 @@ function build_h264 () {
     mkdir -p "${H264_BUILD_DIR}/out/include"
 
     echo "--- Copying header files"
-    cp -R "${H264_BUILD_DIR}/builds/${USE_ARCHS[0]}/include/" "${H264_BUILD_DIR}/out/include"
+    cp -R "${H264_BUILD_DIR}/out/lib/${USE_ARCHS[0]}/include/" "${H264_BUILD_DIR}/out/include"
 
     echo "Done compiling openh264"
 }
