@@ -48,7 +48,7 @@ export BUILD_DIR="$PATH_REPO/external"
 export SSL_BUILD_DIR="$BUILD_DIR/openssl_ios"
 export ZRTP_BUILD_DIR="$BUILD_DIR/zrtp"
 export OPUS_BUILD_DIR="$BUILD_DIR/opus"
-export H264_BUILD_DIR="$BUILD_DIR/h264"
+export H264_BUILD_DIR="$BUILD_DIR/openh264"
 
 export XCODE_SIMULATOR_DEV_PATH="`xcrun -sdk iphonesimulator --show-sdk-platform-path`/Developer"
 
