@@ -13,8 +13,8 @@ jobs:
     permissions:
           contents: write
     steps:  
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v4
-    - name: run build script for ios
-      run: |
-        ./ios.sh --ssl --opus --h264 --arch=armv7,armv7s,i386,x86_64,arm64
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+      - name: run build script for ios
+        run: ./ios.sh --ssl --opus --h264 --arch=armv7,armv7s,i386,x86_64,arm64

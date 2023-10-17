@@ -31,7 +31,7 @@ export SHOW_HELP=false
 export PJSIP_VERSION="2.13.1"
 export PJSIP_BASE_URL="https://github.com/pjsip/pjproject.git"
 export PJSIP_DIR="$BASE_DIR/pjsip"
-export PJSIP_FINAL_LIB_DIR="$BASE_DIR/lib"
+export PJSIP_FINAL_LIB_DIR="$PJSIP_SRC_DIR/lib"
 export PJSIP_SRC_DIR="$BASE_DIR/pjproject"
 export PJSIP_LOGS_DIR="$BASE_DIR/pjsip/logs"
 export PJSIP_TMP_DIR="$BASE_DIR/pjsip/temp"
@@ -43,9 +43,7 @@ export PJSIP_LIB_PATHS=(
     "pjnath/lib"
     "pjsip/lib"
     "third_party/lib"
-)
-export PJSIP_LIB_OUTPUT="$BASE_DIR/lib"
-
+) 
 export BUILD_DIR="$PATH_REPO/external"
 export SSL_BUILD_DIR="$BUILD_DIR/openssl_ios"
 export ZRTP_BUILD_DIR="$BUILD_DIR/zrtp"
@@ -188,34 +186,14 @@ function build_h264 () {
     fi
 
     echo "Use H264"
-
-    rm -rf $H264_BUILD_DIR
-
-    h264_version="2.0.0";
-    h264_url="https://github.com/cisco/openh264/archive/v${h264_version}.tar.gz"
-    h264_target_path="$H264_BUILD_DIR/src"
-
-    mkdir -p $h264_target_path
-
-    cd $h264_target_path
-
-    echo "Downloading h264-${h264_version}.tar.gz"
-	curl -LO $h264_url
-    echo "Using h264-${h264_version}.tar.gz"
-
-    tar zxf "v${h264_version}.tar.gz" --strip 1
-
-    h264_headers_dir="${h264_target_path}/include/wels"
-    if [ -d "${h264_headers_dir}" ]; then
-        rm -rf "${h264_headers_dir}"
-    fi
-    mkdir -p "${h264_headers_dir}"
+  
+    cd $H264_BUILD_DIR
 
     h264_lipo_args=""
     for arch in "${USE_ARCHS[@]}"; do
         h264_makefile="Makefile"
         h264_makefile_bak="Makefile.bak"
-        h264_prefix="${H264_BUILD_DIR}/build/${arch}"
+        h264_prefix="${H264_BUILD_DIR}/builds/${arch}"
         h264_log="${h264_prefix}/build.log"
 
         mkdir -p "${h264_prefix}/logs"
@@ -248,7 +226,7 @@ function build_h264 () {
 
         popd > /dev/null
 
-        h264_lipo_args="${h264_lipo_args} -arch ${arch} ${H264_BUILD_DIR}/build/${arch}/lib/libopenh264.a"
+        h264_lipo_args="${h264_lipo_args} -arch ${arch} ${H264_BUILD_DIR}/builds/${arch}/lib/libopenh264.a"
     done
 
     if [ ! -d "${H264_BUILD_DIR}/lib" ]; then
@@ -268,19 +246,10 @@ function build_ssl () {
     if [ $SSL_SUPPORT = false ]; then
         return
     fi
-
-    echo "Use ssl"
-    rm -rf $SSL_BUILD_DIR
-    mkdir -p $SSL_BUILD_DIR
-
+ 
     pushd . > /dev/null
     cd $SSL_BUILD_DIR
-
-    # Download OpenSSL repo.
-    ssl_url="https://github.com/x2on/OpenSSL-for-iPhone/archive/master.tar.gz"
-    curl -LO $ssl_url
-    tar zxf "master.tar.gz" --strip 1
-    rm "master.tar.gz"
+ 
     ./build-libssl.sh --version=1.1.1d --archs="${USE_ARCHS[*]// /\s}" || exit
     mv include include2
     mkdir -p include
@@ -294,14 +263,10 @@ function build_ssl () {
 }
 
 function build_zrtp () {
-    echo "Use ZRTP"
-	rm -rf $ZRTP_BUILD_DIR
-	rm -rf $PJSIP_SRC_DIR/third_party/ZRTP4PJ
-    mkdir -p $ZRTP_BUILD_DIR
+    echo "Use ZRTP" 
     pushd . > /dev/null
     cd $ZRTP_BUILD_DIR
-    git clone https://github.com/wernerd/ZRTP4PJ
-    cd ZRTP4PJ/zsrtp
+    cd zsrtp
 	sh getzrtp.sh || exit
 	cd $ZRTP_BUILD_DIR
 	mv ZRTP4PJ $PJSIP_SRC_DIR/third_party
@@ -316,9 +281,7 @@ function build_opus () {
     if [ $OPUS_SUPPORT = false ]; then
         return
     fi
-
-    rm -rf $OPUS_BUILD_DIR
-
+ 
     opus_version="1.3.1"
     opus_opt_cflags="-Ofast -flto -g"
     opus_opt_ldflags="-flto"
@@ -329,22 +292,14 @@ function build_opus () {
     opus_repo_dir=$OPUS_BUILD_DIR
     opus_output_dir="${opus_repo_dir}/dependencies"
     opus_build_build_dir="${opus_repo_dir}/build"
-    opus_src_dir="${opus_build_build_dir}/src"
+    opus_src_dir="${opus_repo_dir}/src"
     opus_inter_dir="${opus_build_build_dir}/built"
 
     mkdir -p "${opus_output_dir}/include"
-    mkdir -p "${opus_output_dir}/lib"
-    mkdir -p $opus_src_dir
+    mkdir -p "${opus_output_dir}/lib" 
     mkdir -p $opus_inter_dir
 
-    cd $opus_src_dir
-
-    echo "Downloading opus-${opus_version}.tar.gz"
-	curl -LO http://downloads.xiph.org/releases/opus/opus-${opus_version}.tar.gz
-    echo "Using opus-${opus_version}.tar.gz"
-
-    tar zxf opus-${opus_version}.tar.gz
-    cd "${opus_src_dir}/opus-${opus_version}"
+    cd "${opus_repo_dir}"
 
     ccache=""
 
@@ -425,34 +380,7 @@ function build_opus () {
 
     echo "Done copying files"
 }
-
-function download_pjsip () {
-    pjsip_url="https://github.com/pjsip/pjproject.git"
-
-    cd $RUNNER_DIR
-
-    git clone ${pjsip_url}
-}
-
-function clean_pjsip () {
-    if [ $CLEAN_PJSIP_SRC = true ]; then
-        echo "Clean PJSIP source: ${CLEAN_PJSIP_SRC}"
-        echo "WARNING: About to clean directory: ${BASE_DIR}/pjsip"
-        echo "Waiting 5 seconds for sanity check... CTRL-C to abort now"
-        sleep 1 && echo "4..." && \
-        sleep 1 && echo "3..." && \
-        sleep 1 && echo "2..." && \
-        sleep 1 && echo "1..." && \
-        sleep 1
-
-        rm -rf $PJSIP_DIR
-        rm -rf $PJSIP_FINAL_LIB_DIR
-        rm -rf "${BASE_DIR}/libpjsua2.framework"
-        echo "Done cleaning PJSIP source"
-        echo "============================="
-    fi
-}
-
+ 
 function config_site () {
     echo "Creating config_site.h"
 
@@ -544,7 +472,7 @@ function _build () {
     arch=$1
     arch_log="$PJSIP_LOGS_DIR/$arch.log"
 
-    clean_pjsip_libs $arch
+    #clean_pjsip_libs $arch
 
     configure="./configure-iphone"
 
@@ -625,7 +553,7 @@ function _merge () {
     echo "MERGE"
     cd $BASE_DIR
 
-    mkdir -p "$BASE_DIR"/Pod
+    mkdir -p "$PJSIP_FINAL_LIB_DIR"
     a_files=`find ./pjsip/temp -name *darwin_ios.a -exec printf '%s ' {} +`
 
     if [ $SSL_SUPPORT = true ]; then
@@ -640,15 +568,10 @@ function _merge () {
         a_files="${a_files} ${H264_BUILD_DIR}/lib/libopenh264.a"
     fi
 
-    libtool -o Pod/libpjsua2.a $a_files
+    libtool -o "$PJSIP_FINAL_LIB_DIR/libpjsua2.a" $a_files
+    cp "$PJSIP_FINAL_LIB_DIR/libpjsua2.a" ./Pod
 }
-
-
-function clean_pjsip_libs_temp () {
-    rm -rf "$BASE_DIR/pjsip/temp/$arch"
-    rm -rf "$BASE_DIR/Pod"
-}
-
+ 
 function clean_pjsip_libs () {
     arch=$1
 
@@ -789,14 +712,14 @@ fi
 if [ $SHOW_HELP = true ]; then
     show_help
 else
-    #clean_pjsip
-    #download_pjsip
-    #build_h264
-    #build_ssl
-    #build_opus
+    clean_pjsip
+    download_pjsip
+    build_h264
+    build_ssl
+    build_opus
     config_site
     build_archs
     _merge
-    create_framework
+    #create_framework
 fi
 
