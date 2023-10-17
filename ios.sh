@@ -211,13 +211,13 @@ function build_h264 () {
         rm ${h264_makefile}.deleteme
 
         echo "--- Run make file for ${arch}"
-        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION}  all install   || exit
+        make OS=ios ARCH=${arch} SDK_MIN=${MIN_IOS_VERSION}  all install-static-lib   || exit
 
         mv "${h264_makefile_bak}" "${h264_makefile}"
 
         popd > /dev/null
 
-        h264_lipo_args="${h264_lipo_args} -arch ${arch} ${H264_BUILD_DIR}/out/lib/${arch}/libopenh264.a"
+        h264_lipo_args="${h264_lipo_args} -arch ${arch} ${H264_BUILD_DIR}/out/lib/${arch}/lib/libopenh264.a"
     done
 
     if [ ! -d "${H264_BUILD_DIR}/out/lib" ]; then
@@ -225,10 +225,8 @@ function build_h264 () {
     fi
 
     echo "--- Lipo openH264"
-    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/out/lib/libopenh264.a" || exit
-
-    mkdir -p "${H264_BUILD_DIR}/out/include"
-
+    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/out/lib/lib/openh264.a" || exit
+  
     echo "--- Copying header files"
     cp -R "${H264_BUILD_DIR}/out/lib/${USE_ARCHS[0]}/include/" "${H264_BUILD_DIR}/out/include"
 
