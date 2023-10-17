@@ -227,10 +227,10 @@ function build_h264 () {
     fi
 
     echo "--- Lipo openH264"
-    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/lib/libopenh264.a" || exit
+    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/built/lib/libopenh264.a" || exit
 
     echo "--- Copying header files"
-    cp -R "${H264_BUILD_DIR}/build/${USE_ARCHS[0]}/include/" "${H264_BUILD_DIR}/include"
+    cp -R "${H264_BUILD_DIR}/builds/${USE_ARCHS[0]}/include/" "${H264_BUILD_DIR}/built/include"
 
     echo "Done compiling openh264"
 }
