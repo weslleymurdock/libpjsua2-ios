@@ -8,9 +8,8 @@ author: 'Weslley Murdock'
 <!--Introduction -->
 I've created this repo to automatize new release builds from [pjsip](https://github.com/pjsip).
 The goal was automatize the build for Android,, iOS, OSX, Linux and Windows platforms, also compile external dependencies with each build.
-The future plans is upgrade the xamarin solution provided by pjsip to an MAUI app. 
-<br>
- 
+The future plans is upgrade the xamarin solution provided by pjsip to an MAUI app.
+\s\s
 <!-- Your badges -->
 
 ### Platforms automated build
@@ -31,10 +30,9 @@ The future plans is upgrade the xamarin solution provided by pjsip to an MAUI ap
 
 ### Remaining TODO
 
+- Workflow for Xamarin app build.
+- Port PJSIP Xamarin app to MAUI
+  
+### ACKNOWLEDGEMENTS
 
-* Workflow for Xamarin app build.
-* Port PJSIP Xamarin app to MAUI
- 
-<!-- Credit -->
-### ACKNOWLEDGEMENTS 
-- [**VoIPGRID**](https://github.com/VoIPGRID) for scripts that brings me the idea of this work. 
+- [**VoIPGRID**](https://github.com/VoIPGRID) for scripts that brings me the idea of this work.

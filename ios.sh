@@ -364,8 +364,8 @@ function build_opus () {
  
 function config_site () {
     echo "Creating config_site.h"
- 
-    echo "#define PJ_CONFIG_IPHONE 1" > $PJSIP_CONFIG_SITE_H
+    touch $PJSIP_CONFIG_SITE_H
+    echo "#define PJ_CONFIG_IPHONE 1" >> $PJSIP_CONFIG_SITE_H
 
     if [ $INDEPENDENT_WEBRTC = true ]; then
         echo "#define PJMEDIA_HAS_SRTP 0" >> $PJSIP_CONFIG_SITE_H
@@ -482,14 +482,11 @@ function _build () {
 
     ARCH="-arch $arch" $configure >> $arch_log 2>&1 || exit
 
-    make dep >> $arch_log 2>&1 &
-    spinner $!
+    make dep & spinner $!
 
-    make clean >> $arch_log &
-    spinner $!
+    make clean & spinner $!
 
-    make >> $arch_log 2>&1 &
-    spinner $!
+    make & spinner $!
 
     if [ $SSL_SUPPORT = true ]; then
         if [ $ENABLE_ZRTP = true ]; then
@@ -502,9 +499,10 @@ function _build () {
             spinner $!
         fi
     fi
-    echo " running make for swig "
+    echo "Making swig "
     cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
     make all 
+
     echo "Done building for $arch"
     echo "============================="
 
