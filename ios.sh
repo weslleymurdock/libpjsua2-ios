@@ -229,7 +229,7 @@ function build_ssl () {
     pushd . > /dev/null
     cd $SSL_BUILD_DIR
  
-    ./build-libssl.sh --version=1.1.1d --archs="${USE_ARCHS[*]// /\s}" || exit
+    ./build-libssl.sh --version=1.1.1d --archs="${USE_ARCHS[*]// /\s}" --targets="ios-sim-cross-x86_64 ios-sim-cross-arm64 ios-cross-arm64"|| exit
     mv include include2
     mkdir -p include
     mv include2/openssl include/openssl
