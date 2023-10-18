@@ -15,7 +15,27 @@ The future plans is upgrade the xamarin solution provided by pjsip to an MAUI ap
 ### Platforms automated build
 
 - [ ] [![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/android.yml)
+
+|      ABI      | SSL   | OPUS  | H264 |
+|---------------|-------|-------|------|
+| armeabi       |       |       |      |
+| armeabi-v7a   |       |       |      |
+| arm64-v8a     |       |       |      |
+| x86           |       |       |      |
+| x86_64        |       |       |      |
+
 - [x] [![iOS](https://img.shields.io/badge/iOS-000000?style=for-the-badge&logo=ios&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/ios.yml)
+
+|      ABI      | SSL   | OPUS  | H264 |
+|---------------|-------|-------|------|
+|    armv7      |   X   |   X   |   X  |
+|    armv7s     |   X   |   X   |   X  |
+|    arm64      |   X   |   X   |   X  |
+|    i386       |   -   |   -   |   -  |
+|    x86_64     |   X   |   X   |   X  |
+
+**NOTE**: given an gui alert in config_site, for now the build for i386 arch is disabled. Maybe its need a workaround in the ./configure to skip this validation just on this arch
+
 - [ ] [![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/linux.yml)
 - [ ] [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/win32.yml)
 - [ ] [![OSX](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/osx.yml)
