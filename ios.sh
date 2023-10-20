@@ -687,6 +687,7 @@ fi
 if [ $SHOW_HELP = true ]; then
     show_help
 else 
+    start=`date +%s`
     build_h264
     build_ssl
     build_opus
@@ -694,5 +695,9 @@ else
     build_archs
     #_merge
     #create_framework
+    end=`date +%s`
+    echo "End time: $end"
+    runtime=$((end-start))
+    echo "Total script runtime: $runtime"
 fi
 
