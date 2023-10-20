@@ -329,14 +329,25 @@ function getSSLArchitecture {
 
 start=`date +%s`
 
+
+echo ""
+echo "Downloading Android NDK  ..."
+echo ""
+
 cd $DOWNLOAD_DIR
+curl -L -# -o ndk.zip "$NDK_DOWNLOAD_URL" 2>&1
 echo "Extracting Android NDK ..."
 echo ""
-unzip android-ndk-r21e-linux-x86_64.zip -d ndk
+unzip ndk.zip -d ndk
 mv ndk/$NDK_DIR_NAME .
 rm -rf ndk
-rm -rf android-ndk-r21e-linux-x86_64.zip
+rm -rf ndk.zip
+
 CMD_ZIP_FILE="$CMD_TOOLS.zip"
+curl -L -# -o $CMD_ZIP_FILE $CMD_TOOLS_DOWNLOAD_URL 2>&1
+echo ""
+echo "Android CMD Tools downloaded!"
+
 curl -L -# -o $CMD_ZIP_FILE $CMD_TOOLS_DOWNLOAD_URL 2>&1
 echo "" 
 echo "Extracting Android CMD Tools ..."
@@ -359,6 +370,44 @@ mkdir -p $CMD_TOOLS_DIR_NAME
 mv `ls | grep -w -v $CMD_TOOLS_DIR_NAME` $CMD_TOOLS_DIR_NAME
 
 
+echo "Exporting ANDROID_HOME"
+export ANDROID_HOME=$DOWNLOAD_DIR/$SDK_DIR_NAME
+SDK_MANAGER=$ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME/bin/sdkmanager
+echo "Downloading Android Platforms"
+for api in ${SETUP_ANDROID_APIS[@]}
+do
+    echo yes | $SDK_MANAGER "platforms;android-$api"
+done
+
+echo "Downloading Android Platform-Tools"
+echo yes | $SDK_MANAGER "platform-tools"
+echo "Exporting TOOLS & PLATFORM_TOOLS"
+export PATH=$ANDROID_HOME/platform-tools/:$ANDROID_HOME/tools:$PATH
+
+echo "Downloading Android Build-Tools"
+echo yes | $SDK_MANAGER "build-tools;$ANDROID_BUILD_TOOLS"
+
+echo ""
+echo "Downloading SWIG ${SWIG_VERSION} ..."
+echo ""
+cd $DOWNLOAD_DIR
+curl -L -# -o swig.tar.gz "$SWIG_DOWNLOAD_URL" 2>&1
+rm -rf "$SWIG_DIR_NAME"
+echo "SWIG downloaded!"
+echo "Extracting SWIG ..."
+tar xzf swig.tar.gz && rm -rf swig.tar.gz
+cd "$SWIG_DIR_NAME"
+mkdir -p $SWIG_BUILD_OUT_PATH
+echo "Configuring SWIG ..."
+./configure >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
+echo "Compiling SWIG ..."
+make >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
+echo "Installing SWIG ..."
+make install >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
+cd ..
+rm -rf "$SWIG_DIR_NAME"
+
+http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
 
 
 # OpenH264

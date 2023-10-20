@@ -13,32 +13,14 @@ jobs:
     permissions:
           contents: write
     steps:  
-    - uses: awalsh128/cache-apt-pkgs-action@latest
+    - uses: actions/checkout@v4
       with:
-        packages: openjdk-8-jdk unzip git curl bzip2 binutils make autoconf openssl libssl-dev libopus0 libpcre3 libpcre3-dev build-essential nasm python2
-        version: 1.0
-    - uses: suisei-cn/actions-download-file@v1
-      id: NDK_r21e
-      name: Download android ndk
-      with:
-        url: "https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip"
-        target: tools
-        auto-match: true
-    - uses: suisei-cn/actions-download-file@v1
-      id: CMD_TOOLS
-      name: Download Android Command Tools
-      with:
-        url: "https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip"
-        target: tools
-        auto-match: true
-    - uses: suisei-cn/actions-download-file@v1
-      id: SWIG
-      name: Download Android Command Tools
-      with:
-        url: "http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz"
-        target: tools
-        auto-match: true
+        submodules: recursive
     - name: build all archs
       run: |
         chmod +x ./android.sh
         sudo ./android.sh 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: lipjsua2-so
+        path: ${{ github.workspace }}/output

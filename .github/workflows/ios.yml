@@ -22,5 +22,5 @@ jobs:
           ./ios.sh --ssl --opus --h264 --arch=armv7,armv7s,x86_64,arm64
       - uses: actions/upload-artifact@v3
         with:
-          name: lipjsua2_ios
+          name: lipjsua2-a
           path: ${{ github.workspace }}
