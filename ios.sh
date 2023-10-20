@@ -499,9 +499,9 @@ function _build () {
             spinner $!
         fi
     fi
-    echo "Making swig "
-    cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
-    make all 
+    #echo "Making swig "
+    #cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
+    #make all 
 
     echo "Done building for $arch"
     echo "============================="
