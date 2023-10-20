@@ -10,8 +10,8 @@ AVAILABLE_ARCHS=(
 )
 export PATH_REPO="/Users/runner/work/libpjsua2/libpjsua2"
 
-#export BASE_DIR=`pwd -P`
-export BASE_DIR="$PATH_REPO"
+export BASE_DIR=`pwd -P`
+#export BASE_DIR="$PATH_REPO"
 
 export MIN_IOS_VERSION="10.0"
 export IOS_SDK_VERSION="16.2"
@@ -364,7 +364,7 @@ function build_opus () {
  
 function config_site () {
     echo "Creating config_site.h"
-    cp "$BASE_DIR/pjproject/pjlib/include/pj/config_site_sample.h" $PJSIP_CONFIG_SITE_H
+    touch $PJSIP_CONFIG_SITE_H
     echo "#define PJ_CONFIG_IPHONE 1" > $PJSIP_CONFIG_SITE_H
 
     if [ $INDEPENDENT_WEBRTC = true ]; then
