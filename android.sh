@@ -1,8 +1,7 @@
 #!/bin/bash
-CUR_DIR="$(pwd)"
-BASE_DIR="'/home/runner/work/libpjsua2/libpjsua2"
-DOWNLOAD_DIR="${BASEDIR}/external"
-BUILD_DIR="$BASEDIR/output"
+CUR_DIR="$(pwd)" 
+DOWNLOAD_DIR="/home/runner/work/libpjsua2/libpjsua2/external"
+BUILD_DIR="/home/runner/work/libpjsua2/libpjsua2/output"
 
 NDK_VERSION=r21e 
 NDK_DIR_NAME="android-ndk-$NDK_VERSION"
@@ -60,9 +59,9 @@ OPUS_LIB_HEADERS_PATH="$OPUS_PATH/include"
 
 
 function initialH264Setup {
-    NDK_PATH="$DOWNLOAD_DIR/$NDK_DIR_NAME"
-    SDK_TOOLS_PATH="$DOWNLOAD_DIR/${SDK_DIR_NAME}"/tools
-    OPENH264_SRC_PATH="$DOWNLOAD_DIR/${OPENH264_DIR_NAME}"
+    NDK_PATH="${DOWNLOAD_DIR}/$NDK_DIR_NAME"
+    SDK_TOOLS_PATH="${DOWNLOAD_DIR}/${SDK_DIR_NAME}"/tools
+    OPENH264_SRC_PATH="${DOWNLOAD_DIR}/${OPENH264_DIR_NAME}"
     OPENH264_TMP_DIR="/tmp/openh264"
 }
 
@@ -260,7 +259,7 @@ function clearToolsDirectory {
     then
         echo ""
         echo "Cleaning up tools ..."
-        cd $BASEDIR
+        cd /home/runner/work/libpjsua2/libpjsua2
         rm -r tools
         echo "Finished cleaning up tools"
     fi
@@ -369,7 +368,7 @@ function _setup_system {
 
 
     echo "Exporting ANDROID_HOME"
-    export ANDROID_HOME=$DOWNLOAD_DIR/$SDK_DIR_NAME
+    export ANDROID_HOME="/home/runner/work/libpjsua2/libpjsua2/external/$SDK_DIR_NAME"
     SDK_MANAGER=$ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME/bin/sdkmanager
     echo "Downloading Android Platforms"
     for api in ${SETUP_ANDROID_APIS[@]}
