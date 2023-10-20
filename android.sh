@@ -329,6 +329,38 @@ function getSSLArchitecture {
 
 start=`date +%s`
 
+cd $DOWNLOAD_DIR
+echo "Extracting Android NDK ..."
+echo ""
+unzip android-ndk-r21e-linux-x86_64.zip -d ndk
+mv ndk/$NDK_DIR_NAME .
+rm -rf ndk
+rm -rf android-ndk-r21e-linux-x86_64.zip
+CMD_ZIP_FILE="$CMD_TOOLS.zip"
+curl -L -# -o $CMD_ZIP_FILE $CMD_TOOLS_DOWNLOAD_URL 2>&1
+echo "" 
+echo "Extracting Android CMD Tools ..."
+rm -rf $SDK_DIR_NAME
+unzip -d $SDK_DIR_NAME $CMD_ZIP_FILE
+
+# Remove zip file
+rm -rf $CMD_ZIP_FILE
+
+# Create empty repositories.cfg file to avoid warning
+mkdir -p ~/.android
+touch ~/.android/repositories.cfg
+
+# Since new updates, there are some changes that are not mentioned in the documentation.
+# After unzipping the command line tools package, the top-most directory you'll get is $CMD_TOOLS.
+# Rename the unpacked directory from $CMD_TOOLS to $CMD_TOOLS_DIR_NAME, and place it under $ANDROID_HOME/$CMD_TOOLS
+# which will then look like $ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME
+cd $SDK_DIR_NAME/$CMD_TOOLS
+mkdir -p $CMD_TOOLS_DIR_NAME
+mv `ls | grep -w -v $CMD_TOOLS_DIR_NAME` $CMD_TOOLS_DIR_NAME
+
+
+
+
 # OpenH264
 initialH264Setup
 setupH264PathsAndExports
@@ -435,7 +467,7 @@ do
 done
 copyPjSuaJava
 clearToolsDirectory
-echo "Finished! "
+echo "Finished building pjsua2! "
 
 end=`date +%s`
 echo "End time: $end"
