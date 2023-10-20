@@ -1,6 +1,6 @@
 #!/bin/bash
 CUR_DIR="$(pwd)"
-BASE_DIR=$CUR_DIR
+BASE_DIR="/home/runner/work/libpjsua2/libpjsua2"
 DOWNLOAD_DIR="$BASEDIR/external"
 BUILD_DIR="$BASEDIR/output"
 
