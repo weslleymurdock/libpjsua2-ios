@@ -327,88 +327,92 @@ function getSSLArchitecture {
     fi
 }
 
+function _setup_system {
+
+    echo ""
+    echo "Downloading Android NDK  ..."
+    echo ""
+    NDK_DOWNLOAD_URL="https://dl.google.com/android/repository/android-ndk-$NDK_VERSION-linux-x86_64.zip"
+    cd $DOWNLOAD_DIR
+    curl -L -# -o ndk.zip "$NDK_DOWNLOAD_URL" 2>&1
+    echo "Extracting Android NDK ..."
+    echo ""
+    unzip ndk.zip -d ndk
+    mv ndk/$NDK_DIR_NAME .
+    rm -rf ndk
+    rm -rf ndk.zip
+    CMD_TOOLS_VERSION=8512546
+    CMD_TOOLS_DOWNLOAD_URL="https://dl.google.com/android/repository/commandlinetools-linux-${CMD_TOOLS_VERSION}_latest.zip"
+    CMD_ZIP_FILE="$CMD_TOOLS.zip"
+    curl -L -# -o $CMD_ZIP_FILE $CMD_TOOLS_DOWNLOAD_URL 2>&1
+    echo ""
+    echo "Android CMD Tools downloaded!"
+    echo "" 
+    echo "Extracting Android CMD Tools ..."
+    rm -rf $SDK_DIR_NAME
+    unzip -d $SDK_DIR_NAME $CMD_ZIP_FILE
+
+    # Remove zip file
+    rm -rf $CMD_ZIP_FILE
+
+    # Create empty repositories.cfg file to avoid warning
+    mkdir -p ~/.android
+    touch ~/.android/repositories.cfg
+
+    # Since new updates, there are some changes that are not mentioned in the documentation.
+    # After unzipping the command line tools package, the top-most directory you'll get is $CMD_TOOLS.
+    # Rename the unpacked directory from $CMD_TOOLS to $CMD_TOOLS_DIR_NAME, and place it under $ANDROID_HOME/$CMD_TOOLS
+    # which will then look like $ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME
+    cd $SDK_DIR_NAME/$CMD_TOOLS
+    mkdir -p $CMD_TOOLS_DIR_NAME
+    mv `ls | grep -w -v $CMD_TOOLS_DIR_NAME` $CMD_TOOLS_DIR_NAME
+
+
+    echo "Exporting ANDROID_HOME"
+    export ANDROID_HOME=$DOWNLOAD_DIR/$SDK_DIR_NAME
+    SDK_MANAGER=$ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME/bin/sdkmanager
+    echo "Downloading Android Platforms"
+    for api in ${SETUP_ANDROID_APIS[@]}
+    do
+        echo yes | $SDK_MANAGER "platforms;android-$api"
+    done
+
+    echo "Downloading Android Platform-Tools"
+    echo yes | $SDK_MANAGER "platform-tools"
+    echo "Exporting TOOLS & PLATFORM_TOOLS"
+    export PATH=$ANDROID_HOME/platform-tools/:$ANDROID_HOME/tools:$PATH
+
+    echo "Downloading Android Build-Tools"
+    echo yes | $SDK_MANAGER "build-tools;$ANDROID_BUILD_TOOLS"
+    SWIG_VERSION=4.0.2
+    SWIG_BUILD_OUT_PATH="$BUILD_DIR/swig-build-output"
+    SWIG_DIR_NAME="swig-$SWIG_VERSION"
+    echo ""
+    echo "Downloading SWIG ${SWIG_VERSION} ..."
+    echo ""
+    cd $DOWNLOAD_DIR
+    SWIG_DOWNLOAD_URL="http://prdownloads.sourceforge.net/swig/swig-$SWIG_VERSION.tar.gz"
+    curl -L -# -o swig.tar.gz "$SWIG_DOWNLOAD_URL" 2>&1
+    rm -rf "$SWIG_DIR_NAME"
+    echo "SWIG downloaded!"
+    echo "Extracting SWIG ..."
+    tar xzf swig.tar.gz && rm -rf swig.tar.gz
+    cd "$SWIG_DIR_NAME"
+    mkdir -p $SWIG_BUILD_OUT_PATH
+    echo "Configuring SWIG ..."
+    ./configure >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
+    echo "Compiling SWIG ..."
+    make >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
+    echo "Installing SWIG ..."
+    make install >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
+    cd ..
+    rm -rf "$SWIG_DIR_NAME"
+  
+}
+
 start=`date +%s`
 
-
-echo ""
-echo "Downloading Android NDK  ..."
-echo ""
-
-cd $DOWNLOAD_DIR
-curl -L -# -o ndk.zip "$NDK_DOWNLOAD_URL" 2>&1
-echo "Extracting Android NDK ..."
-echo ""
-unzip ndk.zip -d ndk
-mv ndk/$NDK_DIR_NAME .
-rm -rf ndk
-rm -rf ndk.zip
-
-CMD_ZIP_FILE="$CMD_TOOLS.zip"
-curl -L -# -o $CMD_ZIP_FILE $CMD_TOOLS_DOWNLOAD_URL 2>&1
-echo ""
-echo "Android CMD Tools downloaded!"
-
-curl -L -# -o $CMD_ZIP_FILE $CMD_TOOLS_DOWNLOAD_URL 2>&1
-echo "" 
-echo "Extracting Android CMD Tools ..."
-rm -rf $SDK_DIR_NAME
-unzip -d $SDK_DIR_NAME $CMD_ZIP_FILE
-
-# Remove zip file
-rm -rf $CMD_ZIP_FILE
-
-# Create empty repositories.cfg file to avoid warning
-mkdir -p ~/.android
-touch ~/.android/repositories.cfg
-
-# Since new updates, there are some changes that are not mentioned in the documentation.
-# After unzipping the command line tools package, the top-most directory you'll get is $CMD_TOOLS.
-# Rename the unpacked directory from $CMD_TOOLS to $CMD_TOOLS_DIR_NAME, and place it under $ANDROID_HOME/$CMD_TOOLS
-# which will then look like $ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME
-cd $SDK_DIR_NAME/$CMD_TOOLS
-mkdir -p $CMD_TOOLS_DIR_NAME
-mv `ls | grep -w -v $CMD_TOOLS_DIR_NAME` $CMD_TOOLS_DIR_NAME
-
-
-echo "Exporting ANDROID_HOME"
-export ANDROID_HOME=$DOWNLOAD_DIR/$SDK_DIR_NAME
-SDK_MANAGER=$ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME/bin/sdkmanager
-echo "Downloading Android Platforms"
-for api in ${SETUP_ANDROID_APIS[@]}
-do
-    echo yes | $SDK_MANAGER "platforms;android-$api"
-done
-
-echo "Downloading Android Platform-Tools"
-echo yes | $SDK_MANAGER "platform-tools"
-echo "Exporting TOOLS & PLATFORM_TOOLS"
-export PATH=$ANDROID_HOME/platform-tools/:$ANDROID_HOME/tools:$PATH
-
-echo "Downloading Android Build-Tools"
-echo yes | $SDK_MANAGER "build-tools;$ANDROID_BUILD_TOOLS"
-
-echo ""
-echo "Downloading SWIG ${SWIG_VERSION} ..."
-echo ""
-cd $DOWNLOAD_DIR
-curl -L -# -o swig.tar.gz "$SWIG_DOWNLOAD_URL" 2>&1
-rm -rf "$SWIG_DIR_NAME"
-echo "SWIG downloaded!"
-echo "Extracting SWIG ..."
-tar xzf swig.tar.gz && rm -rf swig.tar.gz
-cd "$SWIG_DIR_NAME"
-mkdir -p $SWIG_BUILD_OUT_PATH
-echo "Configuring SWIG ..."
-./configure >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
-echo "Compiling SWIG ..."
-make >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
-echo "Installing SWIG ..."
-make install >> "$SWIG_BUILD_OUT_PATH/swig.log" 2>&1
-cd ..
-rm -rf "$SWIG_DIR_NAME"
-
-http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
-
+_setup_system
 
 # OpenH264
 initialH264Setup
