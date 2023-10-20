@@ -692,7 +692,7 @@ else
     build_opus
     config_site
     build_archs
-    _merge
+    #_merge
     #create_framework
 fi
 
