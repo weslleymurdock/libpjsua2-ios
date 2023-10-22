@@ -22,7 +22,7 @@ OPENSSL_DIR_NAME="openssl"
 OPENSSL_BUILD_OUT_PATH="$BUILD_DIR/openssl-build-output"
 OPENSSL_TARGET_NDK_LEVEL=21
 
-OPENH264_DIR_NAME="openh264-$OPENH264_VERSION"
+OPENH264_DIR_NAME="openh264"
  
 OPENH264_BUILD_OUT_PATH="$BUILD_DIR/openh264-build-output"
 OPENH264_TARGET_NDK_LEVEL=21
@@ -84,7 +84,7 @@ function clearBuildDirectory {
 function clearH264TmpAndInitDirectory {
     rm -rf "${OPENH264_TMP_DIR}"
     mkdir -p "${OPENH264_TMP_DIR}"
-    cd ${OPENH264_SRC_PATH}
+    cd "${OPENH264_SRC_PATH}"
     cp -r * ${OPENH264_TMP_DIR}
     cd ${OPENH264_TMP_DIR}
     mkdir -p "$BUILD_DIR"
@@ -460,7 +460,7 @@ do
     # Can be android-arm, android-arm64, android-x86 etc
     ARCHITECTURE="android-arm"
     getSSLArchitecture $arch
-
+    touch "${LOG_PATH}/${arch}.log"
     # Create Makefile
     ./Configure $ARCHITECTURE -D__ANDROID_API__=${OPENSSL_TARGET_NDK_LEVEL} >> "${LOG_PATH}/${arch}.log" 2>&1
 
