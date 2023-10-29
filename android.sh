@@ -1,37 +1,36 @@
 #!/bin/bash
-CUR_DIR="$(pwd)" 
-DOWNLOAD_DIR="/home/runner/work/libpjsua2/libpjsua2/external"
-BUILD_DIR="/home/runner/work/libpjsua2/libpjsua2/output"
+export CUR_DIR=`pwd -P`
+export DOWNLOAD_DIR="/home/runner/work/libpjsua2/libpjsua2/external"
+export BUILD_DIR="/home/runner/work/libpjsua2/libpjsua2/output"
+export BASE_DIR=`pwd -P`
 
-NDK_VERSION=r21e 
 NDK_DIR_NAME="android-ndk-$NDK_VERSION"
-CMD_TOOLS_VERSION=8512546
-SDK_DIR_NAME="android-sdk-linux"
-CMD_TOOLS="cmdline-tools"
-CMD_TOOLS_DIR_NAME="latest"
 
-PJSIP_BUILD_OUT_PATH="$BUILD_DIR/pjsip-build-output"
+PJSIP_BUILD_OUT_PATH="$BUILD_DIR/pjsip"
 
 # The generated java bindings and .so lib are placed under different location based on pjsip version
 # >= 2.11 -> "pjsua2" (default)
 # >= 2.4 -> "app"
 PJSIP_GENERATED_ROOT_DIR_NAME="pjsua2" 
-SWIG_BUILD_OUT_PATH="$BUILD_DIR/swig-build-output"
+SWIG_BUILD_OUT_PATH="$BUILD_DIR/swig"
 
 OPENSSL_DIR_NAME="openssl"
-OPENSSL_BUILD_OUT_PATH="$BUILD_DIR/openssl-build-output"
+OPENSSL_BUILD_OUT_PATH="$BUILD_DIR/openssl"
 OPENSSL_TARGET_NDK_LEVEL=21
 
 OPENH264_DIR_NAME="openh264"
  
-OPENH264_BUILD_OUT_PATH="$BUILD_DIR/openh264-build-output"
+OPENH264_BUILD_OUT_PATH="$BUILD_DIR/openh264"
 OPENH264_TARGET_NDK_LEVEL=21
-OPUS_BUILD_OUT_PATH="$BUILD_DIR/opus-build-output" 
+OPUS_BUILD_OUT_PATH="$BUILD_DIR/opus" 
 
+AVAILABLE_ARCHS=("armeabi-v7a" "x86" "arm64-v8a" "x86_64")
+export AVAILABLE_ARCHS 
 TARGET_ARCHS=("armeabi-v7a" "x86" "arm64-v8a" "x86_64") 
 SETUP_ANDROID_APIS=("21")
 ANDROID_BUILD_TOOLS="30.0.3" 
 TARGET_ANDROID_API=21 
+NDK_MAJOR_MINOR_BUILD="21.0.6113669"
 
 BASE_FOLDER=$DOWNLOAD_DIR
 
@@ -45,6 +44,8 @@ FINAL_BUILD_DIR=$PJSIP_BUILD_OUT_PATH
 FINAL_BUILD_LIB="${FINAL_BUILD_DIR}/lib"
 FINAL_BUILD_LOGS="${FINAL_BUILD_DIR}/logs"
 
+export SDK_MANAGER=/usr/local/bin/sdkmanager
+export ANDROID_SDK_ROOT=/usr/local/share/android-commandlinetools
 export ANDROID_NDK_ROOT="${BASE_FOLDER}/${NDK_DIR_NAME}"
 export PATH="$ANDROID_NDK_ROOT:$PATH" 
 export NDK_CFLAGS="-g -O2" 
@@ -57,6 +58,54 @@ OPUS_LOG_PATH="${OPUS_BUILD_OUT_PATH}/logs"
 OPUS_LIB_BUILD_PATH="$OPUS_PATH/obj/local"
 OPUS_LIB_HEADERS_PATH="$OPUS_PATH/include"
 
+function setupJava {
+    echo $'\nnexport JABBA_VERSION="0.11.2"\n' >> /Users/$(whoami)/.zshrc
+    curl -sL https://github.com/shyiko/jabba/raw/master/install.sh | bash && . ~/.jabba/jabba.sh
+    # Verify this line is in .zshrc (Should be added automatically)
+    [ -s "/Users/$(whoami)/.jabba/jabba.sh" ] && source "/Users/$(whoami)/.jabba/jabba.sh"
+    jabba install openjdk@1.17.0
+
+    echo $"\nexport JAVA_HOME=/Users/$(whoami)/.jabba/jdk/openjdk@1.17.0/Contents/Home\n" >> /Users/$(whoami)/.zshrc
+    echo $"\nexport PATH=$JAVA_HOME:$PATH\n" >> /Users/$(whoami)/.zshrc
+}
+
+function setupAndroidSdk {
+    brew install --cask android-commandlinetools
+
+    echo $"\nexport ANDROID_HOME=`brew --prefix`/share/android-commandlinetools\n" >> /Users/$(whoami)/.zshrc
+    echo $"\nexport PATH=$ANDROID_HOME:$PATH\n" >> /Users/$(whoami)/.zshrc
+
+    echo $"\nexport SDK_MANAGER=`brew --prefix`/bin/sdkmanager\n" >> /Users/$(whoami)/.zshrc
+    echo $"\nexport PATH=$SDK_MANAGER:$PATH\n" >> /Users/$(whoami)/.zshrc
+
+    echo $"\nexport AVD=`brew --prefix`/bin/avdmanager\n" >> /Users/$(whoami)/.zshrc
+    echo $"\nexport PATH=$AVD:$PATH\n" >> /Users/$(whoami)/.zshrc
+
+    # Then Accept all licenses
+    yes | sdkmanager --licenses
+
+    # Then Install Tools
+    sdkmanager --install "cmdline-tools;latest"
+    sdkmanager --install "patcher;v4"
+    sdkmanager --install "build-tools;30.0.2" 
+    sdkmanager --install "platforms;android-21"
+    sdkmanager --install "platforms;android-33" 
+    sdkmanager --install "tools" 
+    sdkmanager --install "build-tools;${ANDROID_BUILD_TOOLS}" 
+    sdkmanager --install "platform-tools"
+    sdkmanager --install "ndk;${NDK_MAJOR_MINOR_BUILD}"
+    sdkmanager --install "cmake;3.6.4111459"
+
+
+    # Create empty repositories.cfg file to avoid warning
+    mkdir -p ~/.android
+    touch ~/.android/repositories.cfg
+
+    echo "Exporting TOOLS & PLATFORM_TOOLS"
+    export PATH=$ANDROID_HOME/platform-tools/:$ANDROID_HOME/tools:$PATH
+
+    
+}
 
 function initialH264Setup {
     NDK_PATH="${DOWNLOAD_DIR}/$NDK_DIR_NAME"
@@ -73,6 +122,26 @@ function setupH264PathsAndExports {
     export ANDROID_HOME=$DOWNLOAD_DIR/${SDK_DIR_NAME}
 
     export PATH=${SDK_TOOLS_PATH}:$PATH
+}
+
+function build_h264 {
+    for arch in "${TARGET_ARCHS[@]}"; do
+        echo "Building OpenH264 for target arch $arch ..."
+        # Clear the tmp source directory
+        clearH264TmpAndInitDirectory
+
+        #change default output DIR for make install
+        sed -i "s*PREFIX=/usr/local*PREFIX=${LIB_PATH}/${arch}*g" Makefile
+        
+        ARGS="APP_PLATFORM=android-${TARGET_ANDROID_API} OS=android NDKROOT=${NDK_PATH} NDK_TOOLCHAIN_VERSION=clang NDKLEVEL=${OPENH264_TARGET_NDK_LEVEL} "
+        ARGS="${ARGS}TARGET=android-${TARGET_ANDROID_API} ARCH="
+        # Add final architecture dependent info
+        finalizeH264Args $arch
+
+        make ${ARGS} >> "${LOG_PATH}/${arch}.log" 2>&1
+        mkdir -p ${LIB_PATH}/${arch}
+        make ${ARGS} install >> "${LOG_PATH}/${arch}.log" 2>&1
+    done
 }
 
 function clearBuildDirectory {
@@ -114,8 +183,7 @@ function finalizeH264Args {
         exit 1
     fi
 }
-
-
+ 
 function setConfigSite {
     echo "Creating config site file for Android ..."
     echo "#define PJ_CONFIG_ANDROID 1" > "$CONFIG_SITE_PATH"
@@ -265,21 +333,6 @@ function clearToolsDirectory {
     fi
 }
 
-function setPermissions {
-    if [ "$SET_PERMISSIONS" == "1" ] && [ "$OWNER" != "" ]
-    then
-        echo ""
-        echo "Setting permissions on $BUILD_DIR for user $OWNER"
-        chown $OWNER -R $BUILD_DIR
-        echo "Finished Setting permissions"
-    elif [ "$SET_PERMISSIONS" == "1" ] || [ "$OWNER" != "" ]
-    then
-        echo "You must set both the toggle [SET_PERMISSIONS] to 1 and the name of the user [OWNER] that should own the files"
-    fi
-}
-
-
-
 function initialOpenSSLSetup {
     CUR_DIR="$(pwd)"
     OPENSSL_SRC_PATH="$DOWNLOAD_DIR/${OPENSSL_DIR_NAME}"
@@ -329,62 +382,17 @@ function getSSLArchitecture {
 function _setup_system {
 
     echo ""
-    echo "Downloading Android NDK  ..."
+    echo "Setting java  ..."
     echo ""
-    NDK_DOWNLOAD_URL="https://dl.google.com/android/repository/android-ndk-$NDK_VERSION-linux-x86_64.zip"
-    cd $DOWNLOAD_DIR
-    curl -L -# -o ndk.zip "$NDK_DOWNLOAD_URL" 2>&1
-    echo "Extracting Android NDK ..."
+    setupJava
     echo ""
-    unzip ndk.zip -d ndk
-    mv ndk/$NDK_DIR_NAME .
-    rm -rf ndk
-    rm -rf ndk.zip
-    CMD_TOOLS_VERSION=8512546
-    CMD_TOOLS_DOWNLOAD_URL="https://dl.google.com/android/repository/commandlinetools-linux-${CMD_TOOLS_VERSION}_latest.zip"
-    CMD_ZIP_FILE="$CMD_TOOLS.zip"
-    curl -L -# -o $CMD_ZIP_FILE $CMD_TOOLS_DOWNLOAD_URL 2>&1
+    echo "Setting Android NDK & SDK ..."
     echo ""
-    echo "Android CMD Tools downloaded!"
-    echo "" 
-    echo "Extracting Android CMD Tools ..."
-    rm -rf $SDK_DIR_NAME
-    unzip -d $SDK_DIR_NAME $CMD_ZIP_FILE
+    setupAndroidSdk
+    echo ""
 
-    # Remove zip file
-    rm -rf $CMD_ZIP_FILE
-
-    # Create empty repositories.cfg file to avoid warning
-    mkdir -p ~/.android
-    touch ~/.android/repositories.cfg
-
-    # Since new updates, there are some changes that are not mentioned in the documentation.
-    # After unzipping the command line tools package, the top-most directory you'll get is $CMD_TOOLS.
-    # Rename the unpacked directory from $CMD_TOOLS to $CMD_TOOLS_DIR_NAME, and place it under $ANDROID_HOME/$CMD_TOOLS
-    # which will then look like $ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME
-    cd $SDK_DIR_NAME/$CMD_TOOLS
-    mkdir -p $CMD_TOOLS_DIR_NAME
-    mv `ls | grep -w -v $CMD_TOOLS_DIR_NAME` $CMD_TOOLS_DIR_NAME
-
-
-    echo "Exporting ANDROID_HOME"
-    export ANDROID_HOME="/home/runner/work/libpjsua2/libpjsua2/external/$SDK_DIR_NAME"
-    SDK_MANAGER=$ANDROID_HOME/$CMD_TOOLS/$CMD_TOOLS_DIR_NAME/bin/sdkmanager
-    echo "Downloading Android Platforms"
-    for api in ${SETUP_ANDROID_APIS[@]}
-    do
-        echo yes | $SDK_MANAGER "platforms;android-$api"
-    done
-
-    echo "Downloading Android Platform-Tools"
-    echo yes | $SDK_MANAGER "platform-tools"
-    echo "Exporting TOOLS & PLATFORM_TOOLS"
-    export PATH=$ANDROID_HOME/platform-tools/:$ANDROID_HOME/tools:$PATH
-
-    echo "Downloading Android Build-Tools"
-    echo yes | $SDK_MANAGER "build-tools;$ANDROID_BUILD_TOOLS"
     SWIG_VERSION=4.0.2
-    SWIG_BUILD_OUT_PATH="$BUILD_DIR/swig-build-output"
+    SWIG_BUILD_OUT_PATH="$BUILD_DIR/swig"
     SWIG_DIR_NAME="swig-$SWIG_VERSION"
     echo ""
     echo "Downloading SWIG ${SWIG_VERSION} ..."
@@ -416,25 +424,8 @@ _setup_system
 # OpenH264
 initialH264Setup
 setupH264PathsAndExports
+buildH264
 
-for arch in "${TARGET_ARCHS[@]}"
-do
-    echo "Building OpenH264 for target arch $arch ..."
-    # Clear the tmp source directory
-    clearH264TmpAndInitDirectory
-
-    #change default output DIR for make install
-    sed -i "s*PREFIX=/usr/local*PREFIX=${LIB_PATH}/${arch}*g" Makefile
-    
-    ARGS="APP_PLATFORM=android-${TARGET_ANDROID_API} OS=android NDKROOT=${NDK_PATH} NDK_TOOLCHAIN_VERSION=clang NDKLEVEL=${OPENH264_TARGET_NDK_LEVEL} "
-    ARGS="${ARGS}TARGET=android-${TARGET_ANDROID_API} ARCH="
-    # Add final architecture dependent info
-    finalizeH264Args $arch
-
-    make ${ARGS} >> "${LOG_PATH}/${arch}.log" 2>&1
-    mkdir -p ${LIB_PATH}/${arch}
-    make ${ARGS} install >> "${LOG_PATH}/${arch}.log" 2>&1
-done
 
 # OpenSSL
  
