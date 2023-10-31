@@ -19,8 +19,8 @@ jobs:
       - name: build all ios archs
         run: |
           brew install nasm autoconf automake libtool
-          ./build --ssl --opus --h264 -a=armv7,armv7s,arm64
+          ./build --ssl --opus --h264 -a=x86_64,armv7,armv7s,arm64
       - uses: actions/upload-artifact@v3
         with:
           name: lipjsua2-ios
-          path: ${{ github.workspace }}
+          path: ${{ github.workspace }}/lib

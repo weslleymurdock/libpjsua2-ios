@@ -51,6 +51,7 @@ export OPUS_BUILD_DIR="$BUILD_DIR/opus"
 export H264_BUILD_DIR="$BUILD_DIR/openh264"
 
 export XCODE_SIMULATOR_DEV_PATH="`xcrun -sdk iphonesimulator --show-sdk-platform-path`/Developer"
+export XCODE_DEVICE_DEV_PATH="`xcrun -sdk iphoneos --show-sdk-platform-path`/Developer"
 
 set -e
 
@@ -419,18 +420,21 @@ function build_archs () {
 
 function configure_armv7 () {
     echo "Configure for armv7"
+    export DEVPATH=$XCODE_DEVICE_DEV_PATH
     export CFLAGS="-miphoneos-version-min=$MIN_IOS_VERSION"
     export LDFLAGS=
 }
 
 function configure_armv7s () {
     echo "Configure for armv7s"
+    export DEVPATH=$XCODE_DEVICE_DEV_PATH
     export CFLAGS="-miphoneos-version-min=$MIN_IOS_VERSION"
     export LDFLAGS=
 }
 
 function configure_arm64 () {
     echo "Configure for arm64"
+    export DEVPATH=$XCODE_DEVICE_DEV_PATH
     export CFLAGS="-miphoneos-version-min=$MIN_IOS_VERSION"
     export LDFLAGS=
 }
@@ -479,7 +483,7 @@ function _build () {
     if [ $H264_SUPPORT = true ]; then
         configure="$configure --with-openh264=${H264_BUILD_DIR}"
         export CFLAGS="${CFLAGS} -I${H264_BUILD_DIR}/builds/$arch/include"
-        export LDFLAGS="${LDFLAGS} -L${H264_BUILD_DIR}/$arch/lib"
+        export LDFLAGS="${LDFLAGS} -L${H264_BUILD_DIR}/builds/$arch/lib"
     fi
 
     export LDFLAGS="${LDFLAGS} -lstdc++"
@@ -517,9 +521,9 @@ function _build () {
     fi
 
     #TODO: fix libs not found on runner path because they are in temp
-    # echo "Making swig "
-    # cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
-    # make  
+    echo "Making swig "
+    cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
+    make  
 
     echo "Done building for $arch"
     echo "============================="
@@ -545,11 +549,11 @@ function _collect () {
 function _copy_built_files () {
     echo "copy"
     cd $BASE_DIR
-    
+    lipo_args=""
     mkdir -p "$PJSIP_FINAL_LIB_DIR"
 
     for arch in "${USE_ARCHS[@]}"; do
-        a_files=`find ./pjproject -name *${arch}*darwin_ios.a -exec printf '%s ' {} +`
+        a_files=`find ./pjproject -name *${arch}*-*.a -exec printf '%s ' {} +`
 
         mkdir -p "$PJSIP_FINAL_LIB_DIR/$arch"
 
@@ -565,8 +569,21 @@ function _copy_built_files () {
             cp -v ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
         fi
         
+        a_files="${a_files} `find ${PJSIP_FINAL_LIB_DIR}/$arch/ -name *.a -exec printf '%s ' {} +`"
+
+        
         libtool -o "$PJSIP_FINAL_LIB_DIR/$arch/libpjsua2.a" $a_files
+        
+        lipo_args="${lipo_args} -arch ${arch} ${PJSIP_FINAL_LIB_DIR}/${arch}/libpjsua2.a"
     done
+
+    if [ ! -d "${PJSIP_FINAL_LIB_DIR}/fat" ]; then
+        mkdir -p "${PJSIP_FINAL_LIB_DIR}/fat"
+    fi
+
+    echo "--- Lipo pjsua2"
+    xcrun -sdk iphoneos lipo ${lipo_args} -create -output "${PJSIP_FINAL_LIB_DIR}/fat/libpjsua2.a" || exit
+
     #cp -v "$PJSIP_FINAL_LIB_DIR/libpjsua2.a" ./Pod
 }
  
