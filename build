@@ -574,7 +574,7 @@ function _copy_built_files () {
         
         libtool -o "$PJSIP_FINAL_LIB_DIR/$arch/libpjsua2.a" $a_files
         
-        lipo_args="${lipo_args} -arch ${arch} ${PJSIP_FINAL_LIB_DIR}/${arch}/libpjsua2.a"
+        lipo_args="${lipo_args} ${PJSIP_FINAL_LIB_DIR}/${arch}/libpjsua2.a"
     done
 
     if [ ! -d "${PJSIP_FINAL_LIB_DIR}/fat" ]; then
