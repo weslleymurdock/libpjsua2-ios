@@ -1,4 +1,4 @@
-name: Build pjsua2
+name: Build pjsua2 for ios
 run-name: libpjsua2 builds 🚀
 
 on: 
@@ -8,16 +8,6 @@ on:
       types: [opened, synchronize, reopened]  
       
 jobs:
-  libpjsua2-android:
-    name: pjsip for android
-    runs-on: ubuntu-latest
-    steps:
-    - uses: weslleymurdock/libpjsua2-android-action@v1
-    - uses: actions/upload-artifact@v3
-      with:
-        name: lipjsua2-android
-        path: ${{ github.workspace }}
- 
   libpjsua2-ios:
     runs-on: macos-latest
     permissions:
@@ -29,8 +19,8 @@ jobs:
       - name: build all ios archs
         run: |
           brew install nasm autoconf automake libtool
-          ./ios/ios.sh --ssl --opus --h264 --arch=armv7,armv7s,x86_64,arm64
+          ./ios.sh --ssl --opus --h264 -A=x86_64,arnv7,arnv7s,arm64
       - uses: actions/upload-artifact@v3
         with:
           name: lipjsua2-ios
-          path: ${{ github.workspace }}
+          path: ${{ github.workspace }}/lib

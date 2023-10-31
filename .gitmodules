@@ -13,6 +13,3 @@
 [submodule "external/opus"]
 	path = external/opus
 	url = https://github.com/xiph/opus/
-[submodule "external/openssl"]
-	path = external/openssl
-	url = https://github.com/openssl/openssl
