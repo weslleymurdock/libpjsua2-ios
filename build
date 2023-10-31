@@ -498,8 +498,8 @@ function _build () {
     ARCH="-arch $arch" $configure >> $arch_log 2>&1 || exit
     echo "make dep"
     make dep  
-    echo "make clean"
-    make clean  
+   # echo "make clean"
+    #make clean  
     echo "make "
     echo 
     make  
