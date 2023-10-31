@@ -231,7 +231,7 @@ function build_ssl () {
     targets=""
 
     for arch in "${USE_ARCHS[@]}"; do
-        if [ "$arch" == "x86_64"]; then
+        if [ "$arch" == "x86_64" ]; then
             targets="${targets} ios-sim-cross-$arch"
         elif [ "$arch" != "i386" ]; then
             targets="${targets} ios-cross-$arch"
