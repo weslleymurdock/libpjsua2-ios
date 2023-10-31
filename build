@@ -514,9 +514,11 @@ function _build () {
             spinner $!
         fi
     fi
-    echo "Making swig "
-    cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
-    make  
+
+    #TODO: fix libs not found on runner path because they are in temp
+    # echo "Making swig "
+    # cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
+    # make  
 
     echo "Done building for $arch"
     echo "============================="
@@ -544,9 +546,9 @@ function _copy_built_files () {
     cd $BASE_DIR
     
     mkdir -p "$PJSIP_FINAL_LIB_DIR"
-    a_files=`find ./pjsip/temp -name *darwin_ios.a -exec printf '%s ' {} +`
 
     for arch in "${USE_ARCHS[@]}"; do
+        a_files=`find ./pjsip/temp -name *${arch}*darwin_ios.a -exec printf '%s ' {} +`
 
         mkdir -p "$PJSIP_FINAL_LIB_DIR/$arch"
 
@@ -561,12 +563,9 @@ function _copy_built_files () {
         if [ -d ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib ]; then
             cp -v ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
         fi
-
-        if [ -d ./pjsip/src/pjsip-apps/src/swig/csharp/pjsua2xamarin/iOS/lib/$arch ]; then
-            cp -v ./pjsip/src/pjsip-apps/src/swig/csharp/pjsua2xamarin/iOS/lib/$arch/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
-        fi
+        
+        libtool -o "$PJSIP_FINAL_LIB_DIR/$arch/libpjsua2.a" $a_files
     done
-    #libtool -o "$PJSIP_FINAL_LIB_DIR/libpjsua2.a" $a_files
     #cp -v "$PJSIP_FINAL_LIB_DIR/libpjsua2.a" ./Pod
 }
  
