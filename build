@@ -577,9 +577,20 @@ function _copy_built_files () {
         mkdir -p "${PJSIP_FINAL_LIB_DIR}/fat"
     fi
 
+    if [ ! -d "${PJSIP_FINAL_LIB_DIR}/pjsua2xamarin" ]; then
+        mkdir -p "${PJSIP_FINAL_LIB_DIR}/pjsua2xamarin"
+    fi
+
+    if [ -d "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2xamarin" ]; then 
+        cp -v -r "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2xamarin" "${PJSIP_FINAL_LIB_DIR}/pjsua2xamarin"
+    fi
     echo "--- libtool fat pjsua2"
 
+
+
     libtool -o "$PJSIP_FINAL_LIB_DIR/fat/libpjsua2.a" $a_files
+
+
 
     #echo "--- Lipo pjsua2"
     #xcrun -sdk iphoneos lipo ${lipo_args} -create -output "${PJSIP_FINAL_LIB_DIR}/fat/libpjsua2.a" || exit
