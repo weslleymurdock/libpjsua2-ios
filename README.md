@@ -8,7 +8,7 @@ author: 'Weslley Murdock'
 <!--Introduction -->
 I've created this repo to automatize new release builds from [pjsip](https://github.com/pjsip) for iOS
 \s\s
-An android version is available [here](https://github.com/weslleymurdock/libpjsua2-android-action)
+An android version is available [here](https://github.com/weslleymurdock/libpjsua2-android)
 <!-- Your badges -->
 
 ### Platforms automated build
@@ -21,9 +21,11 @@ An android version is available [here](https://github.com/weslleymurdock/libpjsu
 |    armv7s     |   X   |   X   |   X  |
 |    arm64      |   X   |   X   |   X  |
 |    i386       |   -   |   -   |   -  |
-|    x86_64     |   X   |   X   |   X  |
+|    x86_64     |   -   |   -   |   -  |
 
-**NOTE**: given an gui alert in config_site, for now the build for i386 arch is disabled. Maybe its need a workaround in the ./configure to skip this validation just on this arch
+**NOTE**: 1 - Given an gui alert in config_site, for now the build for i386 arch is disabled. Maybe its need a workaround in the ./configure to skip this validation just on this arch
+
+**NOTE**: 2 - Given a bad linking in x86_64 arch the build for pjsip was disabled (temporarily).
 
 ### Libs with automated build
 
@@ -35,9 +37,10 @@ An android version is available [here](https://github.com/weslleymurdock/libpjsu
 
 ### Remaining TODO
 
-- Workflow for Xamarin app build.
-- Port PJSIP Xamarin app to MAUI
-  
+- [ ] Workflow for Xamarin app build.
+- [ ] Port PJSIP Xamarin app to MAUI
+- [ ] Release c# bindings
+
 ### ACKNOWLEDGEMENTS
 
 - [**VoIPGRID**](https://github.com/VoIPGRID) for scripts that brings me the idea of this work.
