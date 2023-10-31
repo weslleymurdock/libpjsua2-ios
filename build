@@ -550,16 +550,16 @@ function _copy_built_files () {
 
         mkdir -p "$PJSIP_FINAL_LIB_DIR/$arch"
 
-        if [ -d ./pjsip/external/h264/build/$arch/lib ]; then
-            cp -v ./pjsip/external/h264/build/$arch/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
+        if [ -d ./pjsip/external/openh264/build/$arch/lib ]; then
+            cp -v ./pjsip/external/openh264/build/$arch/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
         fi
 
         if [ -d ./pjsip/external/opus/build/built/*$arch.sdk/lib ]; then
             cp -v ./pjsip/external/opus/build/built/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
         fi
         
-        if [ -d ./pjsip/external/ssl/bin/*$arch.sdk/lib ]; then
-            cp -v ./pjsip/external/ssl/bin/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
+        if [ -d ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib ]; then
+            cp -v ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
         fi
 
         if [ -d ./pjsip/src/pjsip-apps/src/swig/csharp/pjsua2xamarin/iOS/lib/$arch ]; then
