@@ -160,8 +160,8 @@ function show_help () {
     echo
     echo " -v, --version, version       Version info"
     echo
-    echo " Example usage: ./ios.sh --ssl --opus --h264 --arch=armv7,armv7s,i386,x86_64,arm64"
-    echo " This will compile the newest pjsip version for the all architectures armv7, armv7s, i386, x86_64 and arm64. With SSL encryption, H264 and the Opus codec."
+    echo " Example usage: ./build --ssl --opus --h264 --arch=armv7,armv7s,arm64"
+    echo " This will compile the newest pjsip version for the all architectures armv7, armv7s, and arm64. With SSL encryption, H264 and the Opus codec."
     exit 1
 }
 
@@ -438,15 +438,15 @@ function configure_arm64 () {
 function configure_i386 () {
     echo "Configure for i386"
     export DEVPATH=$XCODE_SIMULATOR_DEV_PATH
-    export CFLAGS="-O2 -m32 -mios-simulator-version-min=$MIN_IOS_VERSION"
-    export LDFLAGS="-O2 -m32 -mios-simulator-version-min=$MIN_IOS_VERSION -Wl,-no_compact_unwind"
+    export CFLAGS="-O2 -m32"
+    export LDFLAGS="-O2 -m32"
 }
 
 function configure_x86_64 () {
     echo "Configure for x86_64"
     export DEVPATH=$XCODE_SIMULATOR_DEV_PATH
-    export CFLAGS="-O2 -m64 -mios-simulator-version-min=$MIN_IOS_VERSION"
-    export LDFLAGS="-O2 -m64 -mios-simulator-version-min=$MIN_IOS_VERSION"
+    export CFLAGS="-O2 -m64"
+    export LDFLAGS="-O2 -m64"
 }
 
 function _build () {
@@ -478,8 +478,8 @@ function _build () {
 
     if [ $H264_SUPPORT = true ]; then
         configure="$configure --with-openh264=${H264_BUILD_DIR}"
-        export CFLAGS="${CFLAGS} -I${H264_BUILD_DIR}/include"
-        export LDFLAGS="${LDFLAGS} -L${H264_BUILD_DIR}/lib"
+        export CFLAGS="${CFLAGS} -I${H264_BUILD_DIR}/builds/$arch/include"
+        export LDFLAGS="${LDFLAGS} -L${H264_BUILD_DIR}/$arch/lib"
     fi
 
     export LDFLAGS="${LDFLAGS} -lstdc++"
