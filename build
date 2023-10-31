@@ -533,7 +533,7 @@ function _collect () {
     cd $BASE_DIR
     mkdir -p "pjsip/temp/$1"
 
-    for x in `find pjsip/src -name *$1*.a`; do
+    for x in `find pjproject -name *$1*.a`; do
         cp -v ./$x ./pjsip/temp/$1
     done | tee "$BASE_DIR"/pjsip/logs/collect.$1.log
 
@@ -549,7 +549,7 @@ function _copy_built_files () {
     mkdir -p "$PJSIP_FINAL_LIB_DIR"
 
     for arch in "${USE_ARCHS[@]}"; do
-        a_files=`find ./pjsip/src -name *${arch}*darwin_ios.a -exec printf '%s ' {} +`
+        a_files=`find ./pjproject -name *${arch}*darwin_ios.a -exec printf '%s ' {} +`
 
         mkdir -p "$PJSIP_FINAL_LIB_DIR/$arch"
 
