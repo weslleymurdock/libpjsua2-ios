@@ -493,16 +493,16 @@ function _build () {
 
     echo "Building for $arch"
 
-    cp $PJSIP_CONFIG_SITE_H "$BASE_DIR/pjproject/pjlib/include/pj"
+    cp $PJSIP_CONFIG_SITE_H "$PJSIP_SRC_DIR/pjlib/include/pj"
 
     ARCH="-arch $arch" $configure >> $arch_log 2>&1 || exit
     echo "make dep"
-    make dep & spinner $!
+    make dep  
     echo "make clean"
-    make clean & spinner $!
+    make clean  
     echo "make "
     echo 
-    make & spinner $!
+    make  
 
     if [ $SSL_SUPPORT = true ]; then
         if [ $ENABLE_ZRTP = true ]; then
@@ -532,8 +532,8 @@ function _collect () {
     echo "COLLECT for $1"
     cd $BASE_DIR
     mkdir -p "pjsip/temp/$1"
-
-    for x in `find pjproject -name *$1*.a`; do
+    echo `find $PJSIP_SRC_DIR -name *$1*.a`
+    for x in `find $PJSIP_SRC_DIR -name *$1*.a`; do
         cp -v ./$x ./pjsip/temp/$1
     done | tee "$BASE_DIR"/pjsip/logs/collect.$1.log
 
