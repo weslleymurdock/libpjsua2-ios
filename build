@@ -496,11 +496,12 @@ function _build () {
     cp $PJSIP_CONFIG_SITE_H "$BASE_DIR/pjproject/pjlib/include/pj"
 
     ARCH="-arch $arch" $configure >> $arch_log 2>&1 || exit
-
+    echo "make dep"
     make dep & spinner $!
-
+    echo "make clean"
     make clean & spinner $!
-
+    echo "make "
+    echo 
     make & spinner $!
 
     if [ $SSL_SUPPORT = true ]; then
@@ -548,7 +549,7 @@ function _copy_built_files () {
     mkdir -p "$PJSIP_FINAL_LIB_DIR"
 
     for arch in "${USE_ARCHS[@]}"; do
-        a_files=`find ./pjsip/temp -name *${arch}*darwin_ios.a -exec printf '%s ' {} +`
+        a_files=`find ./pjsip/src -name *${arch}*darwin_ios.a -exec printf '%s ' {} +`
 
         mkdir -p "$PJSIP_FINAL_LIB_DIR/$arch"
 
