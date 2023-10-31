@@ -717,7 +717,7 @@ else
     build_opus
     config_site
     build_archs
-    #_copy_built_files
+    _copy_built_files
     #create_framework
 fi
 
