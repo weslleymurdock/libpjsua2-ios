@@ -534,7 +534,7 @@ function _collect () {
 
     for x in `find pjsip/src -name *$1*.a`; do
         cp -v ./$x ./pjsip/temp/$1
-    done | tee "$BASE_DIR"/pjsip/logs/collect.log
+    done | tee "$BASE_DIR"/pjsip/logs/collect.$1.log
 
     if [ $INDEPENDENT_WEBRTC = true ]; then
         rm ./pjsip/temp/$1/libsrtp*.a
@@ -716,7 +716,7 @@ else
     build_opus
     config_site
     build_archs
-    _copy_built_files
+    #_copy_built_files
     #create_framework
 fi
 

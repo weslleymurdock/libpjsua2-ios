@@ -21,7 +21,7 @@ An android version is available [here](https://github.com/weslleymurdock/libpjsu
 |    armv7s     |   X   |   X   |   X  |
 |    arm64      |   X   |   X   |   X  |
 |    i386       |   -   |   -   |   -  |
-|    x86_64     |   -   |   -   |   -  |
+|    x86_64     |   X   |   X   |   X  |
 
 **NOTE**: given an gui alert in config_site, for now the build for i386 arch is disabled. Maybe its need a workaround in the ./configure to skip this validation just on this arch
 
