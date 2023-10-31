@@ -551,7 +551,7 @@ function _copy_built_files () {
     cd $BASE_DIR
     lipo_args=""
     mkdir -p "$PJSIP_FINAL_LIB_DIR"
-        a_files=`find ./pjproject -name *.a -exec printf '%s ' {} +`
+    a_files=`find ./pjproject -name *.a -exec printf '%s ' {} +`
 
     for arch in "${USE_ARCHS[@]}"; do
 
@@ -577,10 +577,12 @@ function _copy_built_files () {
         mkdir -p "${PJSIP_FINAL_LIB_DIR}/fat"
     fi
 
+    echo "--- libtool fat pjsua2"
+
     libtool -o "$PJSIP_FINAL_LIB_DIR/fat/libpjsua2.a" $a_files
 
-    echo "--- Lipo pjsua2"
-    xcrun -sdk iphoneos lipo ${lipo_args} -create -output "${PJSIP_FINAL_LIB_DIR}/fat/libpjsua2.a" || exit
+    #echo "--- Lipo pjsua2"
+    #xcrun -sdk iphoneos lipo ${lipo_args} -create -output "${PJSIP_FINAL_LIB_DIR}/fat/libpjsua2.a" || exit
 
     #cp -v "$PJSIP_FINAL_LIB_DIR/libpjsua2.a" ./Pod
 }
