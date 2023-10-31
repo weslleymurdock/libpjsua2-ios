@@ -551,9 +551,9 @@ function _copy_built_files () {
     cd $BASE_DIR
     lipo_args=""
     mkdir -p "$PJSIP_FINAL_LIB_DIR"
+        a_files=`find ./pjproject -name *.a -exec printf '%s ' {} +`
 
     for arch in "${USE_ARCHS[@]}"; do
-        a_files=`find ./pjproject -name *${arch}*-*.a -exec printf '%s ' {} +`
 
         mkdir -p "$PJSIP_FINAL_LIB_DIR/$arch"
 
@@ -569,17 +569,15 @@ function _copy_built_files () {
             cp -v ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
         fi
         
-        a_files="${a_files} `find ${PJSIP_FINAL_LIB_DIR}/$arch/ -name *.a -exec printf '%s ' {} +`"
-
-        
-        libtool -o "$PJSIP_FINAL_LIB_DIR/$arch/libpjsua2.a" $a_files
-        
-        lipo_args="${lipo_args} ${PJSIP_FINAL_LIB_DIR}/${arch}/libpjsua2.a"
     done
-
+    
+    a_files="${a_files} `find ${PJSIP_FINAL_LIB_DIR}/* -name *.a -exec printf '%s ' {} +`"
+    
     if [ ! -d "${PJSIP_FINAL_LIB_DIR}/fat" ]; then
         mkdir -p "${PJSIP_FINAL_LIB_DIR}/fat"
     fi
+
+    libtool -o "$PJSIP_FINAL_LIB_DIR/fat/libpjsua2.a" $a_files
 
     echo "--- Lipo pjsua2"
     xcrun -sdk iphoneos lipo ${lipo_args} -create -output "${PJSIP_FINAL_LIB_DIR}/fat/libpjsua2.a" || exit
