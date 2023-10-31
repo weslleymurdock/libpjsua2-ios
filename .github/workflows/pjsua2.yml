@@ -10,19 +10,16 @@ on:
 jobs:
   libpjsua2-android:
     name: pjsip for android
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps: 
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-    - name: build all android archs
-      run: |
-        chmod +x ./android.sh
-        sudo ./android.sh 
+    - uses: weslleymurdock/libpjsua2-android-action@v1
     - uses: actions/upload-artifact@v3
       with:
         name: lipjsua2-android
-        path: ${{ github.workspace }}/output
+        path: ${{ github.workspace }}
  
   libpjsua2-ios:
     runs-on: macos-latest
@@ -35,7 +32,7 @@ jobs:
       - name: build all ios archs
         run: |
           brew install nasm autoconf automake libtool
-          ./ios.sh --ssl --opus --h264 --arch=armv7,armv7s,x86_64,arm64
+          ./ios/ios.sh --ssl --opus --h264 --arch=armv7,armv7s,x86_64,arm64
       - uses: actions/upload-artifact@v3
         with:
           name: lipjsua2-ios
