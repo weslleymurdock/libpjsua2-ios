@@ -1,5 +1,5 @@
-name: Build and Lipo pjsip with external libs for ios
-run-name: pjsip build for ios 🚀
+name: Build pjsua2 for ios
+run-name: libpjsua2 builds 🚀
 
 on: 
   push:
@@ -8,7 +8,7 @@ on:
       types: [opened, synchronize, reopened]  
       
 jobs:
-  build:
+  libpjsua2-ios:
     runs-on: macos-latest
     permissions:
           contents: write
@@ -16,11 +16,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: build all archs
+      - name: build all ios archs
         run: |
           brew install nasm autoconf automake libtool
-          ./ios.sh --ssl --opus --h264 --arch=armv7,armv7s,x86_64,arm64
+          ./build --ssl --opus --h264 -a=armv7,armv7s,arm64
       - uses: actions/upload-artifact@v3
         with:
-          name: lipjsua2_ios
-          path: ${{ github.workspace }}
+          name: lipjsua2-ios
+          path: ${{ github.workspace }}/lib

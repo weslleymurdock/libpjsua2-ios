@@ -6,23 +6,12 @@ author: 'Weslley Murdock'
 ---
  
 <!--Introduction -->
-I've created this repo to automatize new release builds from [pjsip](https://github.com/pjsip).
-The goal was automatize the build for Android,, iOS, OSX, Linux and Windows platforms, also compile external dependencies with each build.
-The future plans is upgrade the xamarin solution provided by pjsip to an MAUI app.
+I've created this repo to automatize new release builds from [pjsip](https://github.com/pjsip) for iOS
 \s\s
+An android version is available [here](https://github.com/weslleymurdock/libpjsua2-android)
 <!-- Your badges -->
 
 ### Platforms automated build
-
-- [ ] [![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/android.yml)
-
-|      ABI      | SSL   | OPUS  | H264 |
-|---------------|-------|-------|------|
-| armeabi       |       |       |      |
-| armeabi-v7a   |       |       |      |
-| arm64-v8a     |       |       |      |
-| x86           |       |       |      |
-| x86_64        |       |       |      |
 
 - [x] [![iOS](https://img.shields.io/badge/iOS-000000?style=for-the-badge&logo=ios&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/ios.yml)
 
@@ -32,17 +21,15 @@ The future plans is upgrade the xamarin solution provided by pjsip to an MAUI ap
 |    armv7s     |   X   |   X   |   X  |
 |    arm64      |   X   |   X   |   X  |
 |    i386       |   -   |   -   |   -  |
-|    x86_64     |   X   |   X   |   X  |
+|    x86_64     |   -   |   -   |   -  |
 
-**NOTE**: given an gui alert in config_site, for now the build for i386 arch is disabled. Maybe its need a workaround in the ./configure to skip this validation just on this arch
+**NOTE**: 1 - Given an gui alert in config_site, for now the build for i386 arch is disabled. Maybe its need a workaround in the ./configure to skip this validation just on this arch
 
-- [ ] [![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/linux.yml)
-- [ ] [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/win32.yml)
-- [ ] [![OSX](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)](https://github.com/weslleymurdock/libpjsua2/actions/workflows/osx.yml)
+**NOTE**: 2 - Given a bad linking in x86_64 arch the build for pjsip was disabled (temporarily).
 
-### Libs automated build
+### Libs with automated build
 
-- [ ] pjsip [![pjsip](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/pjsip/pjproject)
+- [x] pjsip [![pjsip](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/pjsip/pjproject)
 - [x] OpenSSL for iPhone [![ssl-ios](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/x2on/OpenSSL-for-iPhone)
 - [x] openh264 [![openh264](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://www.github.com/cisco/openh264)
 - [x] opus [![opus](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/xiph/opus/)
@@ -50,9 +37,10 @@ The future plans is upgrade the xamarin solution provided by pjsip to an MAUI ap
 
 ### Remaining TODO
 
-- Workflow for Xamarin app build.
-- Port PJSIP Xamarin app to MAUI
-  
+- [ ] Workflow for Xamarin app build.
+- [ ] Port PJSIP Xamarin app to MAUI
+- [ ] Release c# bindings
+
 ### ACKNOWLEDGEMENTS
 
 - [**VoIPGRID**](https://github.com/VoIPGRID) for scripts that brings me the idea of this work.
