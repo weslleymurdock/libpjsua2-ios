@@ -535,7 +535,7 @@ function _collect () {
     cd $BASE_DIR
     mkdir -p "lib/$1"
     
-    if [ -d "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2xamarin/pjsua2xamarin.iOS/lib/"]; then
+    if [ -d "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2xamarin/pjsua2xamarin.iOS/lib/" ]; then
         cp -v "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2xamarin/pjsua2xamarin.iOS/lib/$1/libpjsua2.a" ./lib/$1
     fi
 
