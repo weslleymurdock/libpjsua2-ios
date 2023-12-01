@@ -8,7 +8,7 @@ AVAILABLE_ARCHS=(
     "i386"
     "x86_64"
 )
-export PATH_REPO="/Users/runner/work/libpjsua2/libpjsua2"
+export PATH_REPO="/Users/runner/work/libpjsua2-ios/libpjsua2-ios"
 
 #export BASE_DIR=`pwd -P`
 export BASE_DIR="$PATH_REPO"
