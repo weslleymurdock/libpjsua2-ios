@@ -44,7 +44,7 @@ export PJSIP_LIB_PATHS=(
     "pjsip/lib"
     "third_party/lib"
 ) 
-export BUILD_DIR="$PATH_REPO/external"
+export BUILD_DIR="$BASE_DIR/external"
 export SSL_BUILD_DIR="$BUILD_DIR/openssl_ios"
 export ZRTP_BUILD_DIR="$BUILD_DIR/zrtp"
 export OPUS_BUILD_DIR="$BUILD_DIR/opus"
@@ -501,11 +501,8 @@ function _build () {
 
     ARCH="-arch $arch" $configure >> $arch_log 2>&1 || exit
     echo "make dep"
-    make dep  
-   # echo "make clean"
-    #make clean  
-    echo "make "
-    echo 
+    make dep    
+    echo "make " 
     make  
 
     if [ $SSL_SUPPORT = true ]; then
@@ -523,7 +520,8 @@ function _build () {
     #TODO: fix libs not found on runner path because they are in temp
     echo "Making swig "
     cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
-    make  
+    make clean
+    make
 
     echo "Done building for $arch"
     echo "============================="
@@ -535,11 +533,23 @@ function _build () {
 function _collect () {
     echo "COLLECT for $1"
     cd $BASE_DIR
-    mkdir -p "pjsip/temp/$1"
-    echo `find $PJSIP_SRC_DIR -name *$1*.a`
-    for x in `find $PJSIP_SRC_DIR -name *$1*.a`; do
-        cp -v ./$x ./pjsip/temp/$1
-    done | tee "$BASE_DIR"/pjsip/logs/collect.$1.log
+    mkdir -p "lib/$1"
+    
+    if [ -d "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2xamarin/pjsua2xamarin.iOS/lib/"]; then
+        cp -v "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2xamarin/pjsua2xamarin.iOS/lib/$1/libpjsua2.a" ./lib/$1
+    fi
+
+    if [ -d ./pjsip/external/openh264/build/$arch/lib ]; then
+        cp -v ./pjsip/external/openh264/build/$arch/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
+    fi
+
+    if [ -d ./pjsip/external/opus/build/built/*$arch.sdk/lib ]; then
+        cp -v ./pjsip/external/opus/build/built/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
+    fi
+    
+    if [ -d ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib ]; then
+        cp -v ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
+    fi
 
     if [ $INDEPENDENT_WEBRTC = true ]; then
         rm ./pjsip/temp/$1/libsrtp*.a
@@ -570,9 +580,7 @@ function _copy_built_files () {
         fi
         
     done
-    
-    a_files="${a_files} `find ${PJSIP_FINAL_LIB_DIR}/* -name *.a -exec printf '%s ' {} +`"
-    
+     
     if [ ! -d "${PJSIP_FINAL_LIB_DIR}/fat" ]; then
         mkdir -p "${PJSIP_FINAL_LIB_DIR}/fat"
     fi
