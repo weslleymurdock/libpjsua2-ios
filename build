@@ -539,21 +539,21 @@ function _collect () {
         cp -v "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2xamarin/pjsua2xamarin.iOS/lib/$1/libpjsua2.a" ./lib/$1
     fi
 
-    if [ -d ./pjsip/external/openh264/build/$arch/lib ]; then
-        cp -v ./pjsip/external/openh264/build/$arch/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
+    if [ -d ./pjsip/external/openh264/build/$1/lib ]; then
+        cp -v ./pjsip/external/openh264/build/$1/lib/*.a  ./lib/$1
     fi
 
-    if [ -d ./pjsip/external/opus/build/built/*$arch.sdk/lib ]; then
-        cp -v ./pjsip/external/opus/build/built/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
+    if [ -d ./pjsip/external/opus/build/built/*$1.sdk/lib ]; then
+        cp -v ./pjsip/external/opus/build/built/*$1.sdk/lib/*.a  ./lib/$1
     fi
     
-    if [ -d ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib ]; then
-        cp -v ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
+    if [ -d ./pjsip/external/openssl_ios/bin/*$1.sdk/lib ]; then
+        cp -v ./pjsip/external/openssl_ios/bin/*$1.sdk/lib/*.a  ./lib/$1
     fi
 
-    if [ $INDEPENDENT_WEBRTC = true ]; then
-        rm ./pjsip/temp/$1/libsrtp*.a
-    fi
+    # if [ $INDEPENDENT_WEBRTC = true ]; then
+    #     rm ./pjsip/temp/$1/libsrtp*.a
+    # fi
 }
 
 function _copy_built_files () {
@@ -753,7 +753,6 @@ else
     build_opus
     config_site
     build_archs
-    _copy_built_files
     #create_framework
 fi
 
