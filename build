@@ -245,11 +245,13 @@ function build_ssl () {
     mv include2/openssl include/openssl
     popd > /dev/null
     echo "Using SSL..."
-    rm -rf lib
-    for arch in "${USE_ARCHS[@]}"; do
-        mkdir -p lib/$arch
-        cp -r -v bin/iPhone*$IOS_SDK_VERSION-$arch.sdk/lib/*.a lib/$arch
-    done
+    rm -rf lib 
+    
+    cp -r -v bin/iPhoneSimulator${IOS_SDK_VERSION}-x86_64.sdk/lib/libcrypto.a lib/$arch
+    cp -r -v bin/iPhoneOS${IOS_SDK_VERSION}-arm64.sdk/lib/libcrypto.a lib/$arch
+    cp -r -v bin/iPhoneSimulator${IOS_SDK_VERSION}-x86_64.sdk/lib/libssl.a lib/$arch
+    cp -r -v bin/iPhoneOS${IOS_SDK_VERSION}-arm64.sdk/lib/libssl.a lib/$arch
+    
 
     if [ $ENABLE_ZRTP = true ]; then
         build_zrtp
