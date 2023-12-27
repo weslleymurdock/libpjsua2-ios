@@ -19,8 +19,9 @@ jobs:
       - name: build all ios archs
         run: |
           brew install nasm autoconf automake libtool
-          ./build --ssl --opus --h264 -a=armv7,armv7s,arm64
+          sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
+          ./build --ssl --opus --h264 -a=x86_64,arm64
       - uses: actions/upload-artifact@v3
         with:
-          name: lipjsua2-ios
-          path: ${{ github.workspace }}/lib
+          name: libpjsua2-ios
+          path: ${{ github.workspace }}/libpjsua2
