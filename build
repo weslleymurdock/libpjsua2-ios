@@ -245,6 +245,11 @@ function build_ssl () {
     mv include2/openssl include/openssl
     popd > /dev/null
     echo "Using SSL..."
+    rm -rf lib
+    for arch in "${USE_ARCHS[@]}"; do
+        mkdir -p lib/$arch
+        cp -r -v bin/iPhone*$IOS_SDK_VERSION-$arch.sdk/lib/*.a lib/$arch
+    done
 
     if [ $ENABLE_ZRTP = true ]; then
         build_zrtp
@@ -475,15 +480,18 @@ function _build () {
         export CFLAGS="${CFLAGS} -fembed-bitcode"
     fi
 
+    
     if [ $SSL_SUPPORT = true ]; then
-        if [ "$arch" != "i386" ] || [ "$arch" != "x86_64" ]; then
-            configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk"
-            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/include"
-            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
-        else
-            configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk"
-            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include"
-            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        configure="$configure --with-ssl=${SSL_BUILD_DIR}"
+        export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/include"
+        export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/lib"
+        # if [ "$arch" != "i386" ] || [ "$arch" != "x86_64" ]; then
+        #     export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/include"
+        #     export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        # else
+        #     configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk"
+        #     export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include"
+        #     export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
         fi
     fi
 
@@ -566,7 +574,7 @@ function _collect () {
     fi
 
     # if [ $INDEPENDENT_WEBRTC = true ]; then
-    #     rm ./pjsip/temp/$1/libsrtp*.a
+    #     rm ./pjproject/third_party/lib/libsrtp*.a
     # fi
 }
 
@@ -574,41 +582,6 @@ function _merge_archs () {
     cd $BASE_DIR
     mkdir -p "libpjsua2/lib/$1"
     libtool -static -o "libpjsua2/lib/$1/libpjsua2.a" "lib/$1/*.a"
-}
-
-function _copy_built_files () {
-    echo "copy"
-    cd $BASE_DIR
-    lipo_args=""
-    mkdir -p "$PJSIP_FINAL_LIB_DIR"
-    a_files=`find ./pjproject -name *.a -exec printf '%s ' {} +`
-
-    for arch in "${USE_ARCHS[@]}"; do
-
-        mkdir -p "$PJSIP_FINAL_LIB_DIR/$arch"
-
-        if [ -d ./pjsip/external/openh264/build/$arch/lib ]; then
-            cp -v ./pjsip/external/openh264/build/$arch/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
-        fi
-
-        if [ -d ./pjsip/external/opus/build/built/*$arch.sdk/lib ]; then
-            cp -v ./pjsip/external/opus/build/built/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
-        fi
-        
-        if [ -d ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib ]; then
-            cp -v ./pjsip/external/openssl_ios/bin/*$arch.sdk/lib/*.a  ${PJSIP_FINAL_LIB_DIR}/$arch
-        fi
-        
-    done
-   
-    libtool -o "$PJSIP_FINAL_LIB_DIR/fat/libpjsua2.a" $a_files
-
-
-
-    #echo "--- Lipo pjsua2"
-    #xcrun -sdk iphoneos lipo ${lipo_args} -create -output "${PJSIP_FINAL_LIB_DIR}/fat/libpjsua2.a" || exit
-
-    #cp -v "$PJSIP_FINAL_LIB_DIR/libpjsua2.a" ./Pod
 }
  
 function clean_pjsip_libs () {
