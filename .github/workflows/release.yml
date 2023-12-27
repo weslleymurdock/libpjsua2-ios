@@ -11,32 +11,37 @@ jobs:
     permissions:
       contents: write
     steps:  
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: release
-        uses: actions/create-release@v1
-        id: create_release
-        with:
-          draft: false
-          prerelease: false
-          release_name: ${{ github.ref }}
-          tag_name: ${{ github.ref }}
-          body_path: CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: build pjsip with ssl opus and h264
-        run: |
-          brew install nasm autoconf automake libtool
-          sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
-          ./build ssl opus h264 -a=x86_64,arm64
-          tar -zcvf ./libpjsua2 libpjsua2.tar.gz
-      - name: upload ios artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./libpjsua2.tar.gz
-          asset_name: libpjsua2.tar.gz
-          asset_content_type: application/gzip
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.1'
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: ${{ github.ref }}
+        tag_name: ${{ github.ref }}
+        body_path: CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: build pjsip with ssl opus and h264
+      run: |
+        brew install nasm autoconf automake libtool
+        sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
+        ./build ssl opus h264 -a=x86_64,arm64
+        tar -zcvf ./libpjsua2 libpjsua2.tar.gz
+    - name: upload ios artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./libpjsua2.tar.gz
+        asset_name: libpjsua2.tar.gz
+        asset_content_type: application/gzip
