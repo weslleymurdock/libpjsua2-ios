@@ -25,6 +25,7 @@ jobs:
       - name: build all ios archs
         run: |
           brew install nasm autoconf automake libtool
+          sudo mv /Applications/Xcode_15.1.app /Applications/Xcode.app
           sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
           ./build --ssl --opus --h264 -a=x86_64,arm64
       - uses: actions/upload-artifact@v3
