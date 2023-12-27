@@ -247,11 +247,6 @@ function build_ssl () {
     echo "Using SSL..."
     rm -rf lib 
     
-    cp -r -v bin/iPhoneSimulator${IOS_SDK_VERSION}-x86_64.sdk/lib/libcrypto.a lib/$arch
-    cp -r -v bin/iPhoneOS${IOS_SDK_VERSION}-arm64.sdk/lib/libcrypto.a lib/$arch
-    cp -r -v bin/iPhoneSimulator${IOS_SDK_VERSION}-x86_64.sdk/lib/libssl.a lib/$arch
-    cp -r -v bin/iPhoneOS${IOS_SDK_VERSION}-arm64.sdk/lib/libssl.a lib/$arch
-    
 
     if [ $ENABLE_ZRTP = true ]; then
         build_zrtp
@@ -499,9 +494,9 @@ function _build () {
 
     if [ $OPUS_SUPPORT = true ]; then
         if [ "$arch" != "i386" ] || [ "$arch" != "x86_64" ]; then
-            configure="$configure --with-opus=${OPUS_BUILD_DIR}/build/built/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
+            configure="$configure --with-opus=${OPUS_BUILD_DIR}/build/built/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/"
         else
-            configure="$configure --with-opus=${OPUS_BUILD_DIR}/build/built/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
+            configure="$configure --with-opus=${OPUS_BUILD_DIR}/build/built/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/"
         fi
     fi
 
