@@ -477,18 +477,16 @@ function _build () {
     fi
 
     
-    if [ $SSL_SUPPORT = true ]; then
-        configure="$configure --with-ssl=${SSL_BUILD_DIR}"
-        export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/include"
-        export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/lib"
-        # if [ "$arch" != "i386" ] || [ "$arch" != "x86_64" ]; then
-        #     export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/include"
-        #     export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
-        # else
-        #     configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk"
-        #     export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include"
-        #     export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
-        # fi
+    if [ $SSL_SUPPORT = true ]; then 
+        if [ "$arch" != "i386" ] || [ "$arch" != "x86_64" ]; then
+            configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk"
+            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/include"
+            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        else
+            configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
+            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include"
+            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        fi
     fi
 
     if [ $OPUS_SUPPORT = true ]; then
@@ -554,19 +552,19 @@ function _collect () {
     mkdir -p "lib/$1"
     
     if [ -d "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2maui/pjsua2maui.iOS/lib/" ]; then
-        cp -v "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2maui/pjsua2maui.iOS/lib/$1/libpjsua2.a" ./lib/$1
+        cp -v "$PJSIP_SRC_DIR/pjsip-apps/src/swig/csharp/pjsua2maui/pjsua2maui.iOS/lib/$1/libpjsua2.a" $BASE_DIR/lib/$1
     fi
 
     if [ -d ./external/openh264/builds/$1/lib ]; then
-        cp -v ./external/openh264/builds/$1/lib/*.a  ./lib/$1
+        cp -v ./external/openh264/builds/$1/lib/*.a  $BASE_DIR/lib/$1
     fi
 
     if [ -d ./external/opus/build/built/*$1.sdk/lib ]; then
-        cp -v ./external/opus/build/built/*$1.sdk/lib/*.a  ./lib/$1
+        cp -v ./external/opus/build/built/*$1.sdk/lib/*.a  $BASE_DIR/lib/$1
     fi
     
     if [ -d ./external/openssl_ios/bin/*$1.sdk/lib ]; then
-        cp -v ./external/openssl_ios/bin/*$1.sdk/lib/*.a  ./lib/$1
+        cp -v ./external/openssl_ios/bin/*$1.sdk/lib/*.a  $BASE_DIR/lib/$1
     fi
 
     # if [ $INDEPENDENT_WEBRTC = true ]; then
@@ -579,7 +577,7 @@ function _merge_archs () {
     echo "======== MERGE LIBS ========="
     cd $BASE_DIR
     mkdir -p "libpjsua2/lib/$1"
-    libtool -static -o "libpjsua2/lib/$1/libpjsua2.a" "./lib/$1/libpjsua2.a ./lib/$1/libopenh264.a ./lib/$1/libopus.a"
+    libtool -static -o "libpjsua2/lib/$1/libpjsua2.a" "$BASE_DIR/lib/$1/libpjsua2.a $BASE_DIR/lib/$1/libopenh264.a $BASE_DIR/lib/$1/libopus.a $BASE_DIR/lib/$1/libssl.a $BASE_DIR/lib/$1/libcrypto.a"
     echo "============================="
 }
  
