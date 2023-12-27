@@ -18,17 +18,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        submodules: recursive
-    - name: Export env vars
-      run: |
-        export CC=clang
-        export CXX=clang
+        submodules: recursive 
     - name: build pjsip with ssl opus and h264
       run: |
-        brew install nasm autoconf automake libtool
+        brew install nasm autoconf automake libtool swig
         sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
-        ./build h264 -a=x86_64,arm64
-         
+        ./build h264 opus ssl -a=x86_64,arm64
         tar -zcvf ./libpjsua2 libpjsua2.tar.gz
     - name: release
       uses: actions/create-release@v1
