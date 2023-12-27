@@ -492,7 +492,7 @@ function _build () {
         #     configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk"
         #     export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include"
         #     export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
-        fi
+        # fi
     fi
 
     if [ $OPUS_SUPPORT = true ]; then
