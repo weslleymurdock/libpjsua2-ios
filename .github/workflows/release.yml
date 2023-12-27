@@ -20,7 +20,9 @@ jobs:
       with:
         submodules: recursive
     - name: Rename Xcode
-      run: sudo mv /Applications/Xcode_15.1.app /Applications/Xcode.app
+      run: |
+        sudo mv /Applications/Xcode_15.1.app /Applications/Xcode.app
+        ls /Applications/Xcode*
     - name: release
       uses: actions/create-release@v1
       id: create_release
