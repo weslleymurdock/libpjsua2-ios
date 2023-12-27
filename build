@@ -450,8 +450,8 @@ function configure_i386 () {
 function configure_x86_64 () {
     echo "Configure for x86_64"
     export DEVPATH=$XCODE_SIMULATOR_DEV_PATH
-    export CFLAGS="-O2 -m64"
-    export LDFLAGS="-O2 -m64"
+    export CFLAGS="-O2 -m64 -mios-simulator-version-min=$MIN_IOS_VERSION"
+    export LDFLAGS="-O2 -m64 -mios-simulator-version-min=$MIN_IOS_VERSION"
 }
 
 function _build () {
