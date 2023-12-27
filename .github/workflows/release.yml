@@ -23,6 +23,12 @@ jobs:
       run: |
         export CC=clang
         export CXX=clang
+    - name: build pjsip with ssl opus and h264
+      run: |
+        brew install nasm autoconf automake libtool
+        sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
+        ./build ssl opus h264 -a=x86_64,arm64
+        tar -zcvf ./libpjsua2 libpjsua2.tar.gz
     - name: release
       uses: actions/create-release@v1
       id: create_release
@@ -32,15 +38,8 @@ jobs:
         release_name: ${{ github.ref }}
         tag_name: ${{ github.ref }}
         body_path: CHANGELOG.md
-      env:
-        MD_APPLE_SDK_ROOT: /Applications/Xcode.app
+      env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: build pjsip with ssl opus and h264
-      run: |
-        brew install nasm autoconf automake libtool
-        sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
-        ./build ssl opus h264 -a=x86_64,arm64
-        tar -zcvf ./libpjsua2 libpjsua2.tar.gz
     - name: upload ios artifact
       uses: actions/upload-release-asset@v1
       env:
