@@ -577,7 +577,7 @@ function _merge_archs () {
     echo "======== MERGE LIBS ========="
     cd $BASE_DIR
     mkdir -p "libpjsua2/lib/$1"
-    libtool -static -o "libpjsua2/lib/$1/libpjsua2.a" "$BASE_DIR/lib/$1/libpjsua2.a $BASE_DIR/lib/$1/libopenh264.a $BASE_DIR/lib/$1/libopus.a $BASE_DIR/lib/$1/libssl.a $BASE_DIR/lib/$1/libcrypto.a"
+    libtool -static -o ./libpjsua2/lib/$1/libpjsua2.a $BASE_DIR/lib/$1/*
     echo "============================="
 }
  
