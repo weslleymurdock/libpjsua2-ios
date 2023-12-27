@@ -450,8 +450,8 @@ function configure_i386 () {
 function configure_x86_64 () {
     echo "Configure for x86_64"
     export DEVPATH=$XCODE_SIMULATOR_DEV_PATH
-    export CFLAGS="-O2 -m64 -mios-simulator-version-min=$MIN_IOS_VERSION"
-    export LDFLAGS="-O2 -m64 -mios-simulator-version-min=$MIN_IOS_VERSION"
+    export CFLAGS="-O2 -m64"
+    export LDFLAGS="-O2 -m64"
 }
 
 function _build () {
@@ -488,7 +488,6 @@ function _build () {
     fi
 
     export LDFLAGS="${LDFLAGS} -lstdc++"
-    #export MIN_IOS="-miphoneos-version-min=${MIN_IOS_VERSION}"
     
     if [ "$arch" == "i386" ] || [ "$arch" == "x86_64" ]; then
         export MIN_IOS="-mios-simulator-version-min=${MIN_IOS_VERSION}"
@@ -500,7 +499,7 @@ function _build () {
 
     cp $PJSIP_CONFIG_SITE_H "$PJSIP_SRC_DIR/pjlib/include/pj"
 
-    ARCH="-arch $arch" $configure >> $arch_log 2>&1 || exit
+    ARCH="-arch $arch" $configure #>> $arch_log 2>&1 || exit
     echo "make dep"
     make dep  >> $arch_log 2>&1  
     echo "make " 
