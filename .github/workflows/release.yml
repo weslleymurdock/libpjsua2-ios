@@ -33,6 +33,7 @@ jobs:
     - name: build pjsip with ssl opus and h264
       run: |
         brew install nasm autoconf automake libtool
+        sudo mv /Applications/Xcode-15.1.app /Applications/Xcode.app
         sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
         ./build ssl opus h264 -a=x86_64,arm64
         tar -zcvf ./libpjsua2 libpjsua2.tar.gz
