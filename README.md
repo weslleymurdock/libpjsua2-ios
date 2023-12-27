@@ -38,8 +38,7 @@ An android version is available [here](https://github.com/weslleymurdock/libpjsu
 ### Remaining TODO
 
 - [ ] Workflow for Xamarin app build.
-- [ ] Port PJSIP Xamarin app to MAUI
-- [ ] Release c# bindings
+- [ ] Port PJSIP Xamarin app to MAUI 
 
 ### ACKNOWLEDGEMENTS
 

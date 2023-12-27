@@ -9,18 +9,26 @@ on:
       
 jobs:
   libpjsua2-ios:
-    runs-on: macos-latest
+    runs-on: macos-13
+    name: iOS Build
     permissions:
           contents: write
-    steps:  
-      - uses: actions/checkout@v4
+    steps:
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: '15.1'
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: build all ios archs
         run: |
-          brew install nasm autoconf automake libtool
-          ./build --ssl --opus --h264 -a=armv7,armv7s,arm64
+          brew install nasm autoconf automake libtool swig
+          sudo mv /Applications/Xcode_15.1.app /Applications/Xcode.app
+          sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
+          ./build --ssl --opus --h264 -a=x86_64,arm64
       - uses: actions/upload-artifact@v3
         with:
-          name: lipjsua2-ios
-          path: ${{ github.workspace }}/lib
+          name: libpjsua2-ios
+          path: ${{ github.workspace }}/libpjsua2
