@@ -477,18 +477,22 @@ function _build () {
 
     if [ $SSL_SUPPORT = true ]; then
         if [ "$arch" != "i386" ] || [ "$arch" != "x86_64" ]; then
-            configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneOS${MIN_IOS_VERSION}-${arch}.sdk"
-            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneOS${MIN_IOS_VERSION}-${arch}.sdk/include"
-            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneOS${MIN_IOS_VERSION}-${arch}.sdk/lib"
+            configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk"
+            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/include"
+            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
         else
-            configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneSimulator${MIN_IOS_VERSION}-${arch}.sdk"
-            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneSimulator${MIN_IOS_VERSION}-${arch}.sdk/include"
-            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneSimulator${MIN_IOS_VERSION}-${arch}.sdk/lib"
+            configure="$configure --with-ssl=${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk"
+            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include"
+            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/bin/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
         fi
     fi
 
     if [ $OPUS_SUPPORT = true ]; then
-        configure="$configure --with-opus=${OPUS_BUILD_DIR}/dependencies"
+        if [ "$arch" != "i386" ] || [ "$arch" != "x86_64" ]; then
+            configure="$configure --with-opus=${OPUS_BUILD_DIR}/build/built/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        else
+            configure="$configure --with-opus=${OPUS_BUILD_DIR}/build/built/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        fi
     fi
 
     if [ $H264_SUPPORT = true ]; then

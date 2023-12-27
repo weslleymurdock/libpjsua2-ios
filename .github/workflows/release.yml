@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive 
-    - name: build pjsip with ssl opus and h264
+    - name: build pjsip with opus and h264
       run: |
         brew install nasm autoconf automake libtool swig
         sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
