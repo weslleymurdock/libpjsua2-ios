@@ -517,9 +517,9 @@ function _build () {
 
     ARCH="-arch $arch" $configure #>> $arch_log 2>&1 || exit
     echo "make dep"
-    make dep  >> $arch_log 2>&1  
+    make dep   
     echo "make " 
-    make  >> $arch_log 2>&1
+    make   
 
     if [ $SSL_SUPPORT = true ]; then
         if [ $ENABLE_ZRTP = true ]; then
