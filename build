@@ -27,7 +27,7 @@ export ENABLE_ZRTP=false
 export HAS_BITCODE=true
 export HAS_IPV6=false
 export SHOW_HELP=false
-export PJSIP_VERSION="2.14"
+export PJSIP_VERSION="2.14.1"
 export PJSIP_BASE_URL="https://github.com/pjsip/pjproject.git"
 export PJSIP_DIR="$BASE_DIR/pjsip"
 export PJSIP_FINAL_LIB_DIR="$BASE_DIR/lib"
@@ -245,9 +245,7 @@ function build_ssl () {
     done
 
     ./build-libssl.sh --version=1.1.1d --archs="${USE_ARCHS[*]// /\s}" --ios-min-sdk=${MIN_IOS_VERSION} --targets="$targets"|| exit
-    mv include include2
-    mkdir -p include
-    mv include2/openssl include/openssl
+    
     popd > /dev/null
     echo "Using SSL..."
     rm -rf lib 
