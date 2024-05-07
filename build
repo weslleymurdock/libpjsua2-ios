@@ -49,8 +49,8 @@ export ZRTP_BUILD_DIR="$BUILD_DIR/zrtp"
 export OPUS_BUILD_DIR="$BUILD_DIR/opus"
 export H264_BUILD_DIR="$BUILD_DIR/openh264"
 
-export XCODE_SIMULATOR_DEV_PATH="`xcrun -sdk iphonesimulator --show-sdk-platform-path`/Developer"
-export XCODE_DEVICE_DEV_PATH="`xcrun -sdk iphoneos --show-sdk-platform-path`/Developer"
+export XCODE_SIMULATOR_DEV_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
+export XCODE_DEVICE_DEV_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
 
 set -e
 
@@ -508,7 +508,7 @@ function _build () {
         export LDFLAGS="${LDFLAGS} -L${H264_BUILD_DIR}/builds/$arch/lib"
     fi
 
-    export LDFLAGS="${LDFLAGS} -lstdc++"
+    export LDFLAGS="${LDFLAGS} -lstdc++ -ld_classic"
     
     if [ "$arch" == "i386" ] || [ "$arch" == "x86_64" ]; then
         export MIN_IOS="-mios-simulator-version-min=${MIN_IOS_VERSION}"
@@ -520,11 +520,11 @@ function _build () {
 
     cp $PJSIP_CONFIG_SITE_H "$PJSIP_SRC_DIR/pjlib/include/pj"
 
-    ARCH="-arch $arch" $configure #>> $arch_log 2>&1 || exit
+    ARCH="-arch $arch " $configure #>> $arch_log 2>&1 || exit
     echo "make dep"
     make dep   
     echo "make " 
-    make HOST_LDFLAGS+= -ld_classic  
+    
 
     if [ $SSL_SUPPORT = true ]; then
         if [ $ENABLE_ZRTP = true ]; then
