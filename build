@@ -10,11 +10,10 @@ AVAILABLE_ARCHS=(
 )
 export PATH_REPO="/Users/runner/work/libpjsua2-ios/libpjsua2-ios"
 
-#export BASE_DIR=`pwd -P`
-export BASE_DIR="$PATH_REPO"
+export BASE_DIR=`pwd -P`
 
 export MIN_IOS_VERSION="11.0"
-export IOS_SDK_VERSION="17.2"
+export IOS_SDK_VERSION="17.0"
 export AVAILABLE_ARCHS
 export USE_ARCHS=()
 
@@ -28,7 +27,7 @@ export ENABLE_ZRTP=false
 export HAS_BITCODE=true
 export HAS_IPV6=false
 export SHOW_HELP=false
-export PJSIP_VERSION="2.14"
+export PJSIP_VERSION="2.14.1"
 export PJSIP_BASE_URL="https://github.com/pjsip/pjproject.git"
 export PJSIP_DIR="$BASE_DIR/pjsip"
 export PJSIP_FINAL_LIB_DIR="$BASE_DIR/lib"
@@ -50,8 +49,8 @@ export ZRTP_BUILD_DIR="$BUILD_DIR/zrtp"
 export OPUS_BUILD_DIR="$BUILD_DIR/opus"
 export H264_BUILD_DIR="$BUILD_DIR/openh264"
 
-export XCODE_SIMULATOR_DEV_PATH="`xcrun -sdk iphonesimulator --show-sdk-platform-path`/Developer"
-export XCODE_DEVICE_DEV_PATH="`xcrun -sdk iphoneos --show-sdk-platform-path`/Developer"
+export XCODE_SIMULATOR_DEV_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
+export XCODE_DEVICE_DEV_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
 
 set -e
 
@@ -66,6 +65,10 @@ for i in "$@"; do
                 fi
             done
         done <<< $ARCHS
+        shift
+        ;;
+        --ci)
+        export BASE_DIR="$PATH_REPO"
         shift
         ;;
         --no-download-pjsip-src)
@@ -132,6 +135,8 @@ function show_help () {
     echo
     echo " -a, --arch                   Compile for specific architecture. Input the architectures comma separated."
     echo "                              If empty all architectures will be build (armv7,armv7s,arm64,i386,x86_64)"
+    echo
+    echo " --ci                       Set script to use path's of ci build server"
     echo
     echo " -h264, --h264, h264          Wheter to include h264/video support in PJSIP.  (default: not build)"
     echo
@@ -240,9 +245,7 @@ function build_ssl () {
     done
 
     ./build-libssl.sh --version=1.1.1d --archs="${USE_ARCHS[*]// /\s}" --ios-min-sdk=${MIN_IOS_VERSION} --targets="$targets"|| exit
-    mv include include2
-    mkdir -p include
-    mv include2/openssl include/openssl
+    
     popd > /dev/null
     echo "Using SSL..."
     rm -rf lib 
@@ -503,7 +506,7 @@ function _build () {
         export LDFLAGS="${LDFLAGS} -L${H264_BUILD_DIR}/builds/$arch/lib"
     fi
 
-    export LDFLAGS="${LDFLAGS} -lstdc++"
+    export LDFLAGS="${LDFLAGS} -lstdc++ -ld_classic"
     
     if [ "$arch" == "i386" ] || [ "$arch" == "x86_64" ]; then
         export MIN_IOS="-mios-simulator-version-min=${MIN_IOS_VERSION}"
@@ -515,11 +518,11 @@ function _build () {
 
     cp $PJSIP_CONFIG_SITE_H "$PJSIP_SRC_DIR/pjlib/include/pj"
 
-    ARCH="-arch $arch" $configure #>> $arch_log 2>&1 || exit
+    ARCH="-arch $arch " $configure #>> $arch_log 2>&1 || exit
     echo "make dep"
-    make dep  >> $arch_log 2>&1  
+    make dep >> $arch_log 2>&1 || exit
     echo "make " 
-    make  >> $arch_log 2>&1
+    make >> $arch_log 2>&1 || exit
 
     if [ $SSL_SUPPORT = true ]; then
         if [ $ENABLE_ZRTP = true ]; then
