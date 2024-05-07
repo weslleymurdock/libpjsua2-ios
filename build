@@ -10,8 +10,7 @@ AVAILABLE_ARCHS=(
 )
 export PATH_REPO="/Users/runner/work/libpjsua2-ios/libpjsua2-ios"
 
-#export BASE_DIR=`pwd -P`
-export BASE_DIR="$PATH_REPO"
+export BASE_DIR=`pwd -P`
 
 export MIN_IOS_VERSION="11.0"
 export IOS_SDK_VERSION="17.2"
@@ -66,6 +65,10 @@ for i in "$@"; do
                 fi
             done
         done <<< $ARCHS
+        shift
+        ;;
+        --ci)
+        export BASE_DIR="$PATH_REPO"
         shift
         ;;
         --no-download-pjsip-src)
@@ -132,6 +135,8 @@ function show_help () {
     echo
     echo " -a, --arch                   Compile for specific architecture. Input the architectures comma separated."
     echo "                              If empty all architectures will be build (armv7,armv7s,arm64,i386,x86_64)"
+    echo
+    echo " --ci                       Set script to use path's of ci build server"
     echo
     echo " -h264, --h264, h264          Wheter to include h264/video support in PJSIP.  (default: not build)"
     echo
@@ -519,7 +524,7 @@ function _build () {
     echo "make dep"
     make dep   
     echo "make " 
-    make   
+    make HOST_LDFLAGS+= -ld_classic  
 
     if [ $SSL_SUPPORT = true ]; then
         if [ $ENABLE_ZRTP = true ]; then
