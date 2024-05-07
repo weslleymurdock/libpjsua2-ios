@@ -13,7 +13,7 @@ export PATH_REPO="/Users/runner/work/libpjsua2-ios/libpjsua2-ios"
 export BASE_DIR=`pwd -P`
 
 export MIN_IOS_VERSION="11.0"
-export IOS_SDK_VERSION="17.2"
+export IOS_SDK_VERSION="17.0"
 export AVAILABLE_ARCHS
 export USE_ARCHS=()
 
