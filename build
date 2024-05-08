@@ -219,8 +219,9 @@ function build_bcg729 () {
             make C_FLAGS="$C_FLAGS -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=${arch}" || exit  
         fi
         make install 
-        lipo -info "external/bcg729/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk/lib/*.a"
     done
+    lipo -info "$BCG729_BUILD_DIR/iPhoneSimulator*x86_64.sdk/lib/*.a"
+    lipo -info "$BCG729_BUILD_DIR/iPhoneOS*arm64.sdk/lib/*.a"
 
 }
 
