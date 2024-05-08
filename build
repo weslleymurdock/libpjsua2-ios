@@ -220,8 +220,8 @@ function build_bcg729 () {
         fi
         make install 
     done
-    lipo -info "$BCG729_BUILD_DIR/iPhoneSimulator*x86_64.sdk/lib/*.a"
-    lipo -info "$BCG729_BUILD_DIR/iPhoneOS*arm64.sdk/lib/*.a"
+    lipo -info "$BCG729_BUILD_DIR/iPhoneSimulator17.2-x86_64.sdk/lib/libbcg729.a"
+    lipo -info "$BCG729_BUILD_DIR/iPhoneOS17.2-arm64.sdk/lib/libbcg729.a"
 
 }
 
