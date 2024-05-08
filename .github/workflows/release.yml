@@ -25,7 +25,7 @@ jobs:
       run: |
         brew install nasm autoconf automake libtool swig
         sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
-        ./build h264 opus ssl -a=x86_64,arm64 --ci
+        ./build h264 opus ssl bcg729 -a=x86_64,arm64 --ci
         tar -zcvf libpjsua2.tar.gz ./libpjsua2
     - name: release
       uses: actions/create-release@v1
