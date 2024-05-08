@@ -22,6 +22,7 @@ export CLEAN_PJSIP_SRC=true
 export SSL_SUPPORT=false
 export OPUS_SUPPORT=false
 export H264_SUPPORT=false
+export BCG729_SUPPORT=false
 export INDEPENDENT_WEBRTC=false
 export ENABLE_ZRTP=false
 export HAS_BITCODE=true
@@ -48,7 +49,7 @@ export SSL_BUILD_DIR="$BUILD_DIR/openssl_ios"
 export ZRTP_BUILD_DIR="$BUILD_DIR/zrtp"
 export OPUS_BUILD_DIR="$BUILD_DIR/opus"
 export H264_BUILD_DIR="$BUILD_DIR/openh264"
-
+export BCG729_BUILD_DIR="$BUILD_DIR/bcg729"
 export XCODE_SIMULATOR_DEV_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
 export XCODE_DEVICE_DEV_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
 
@@ -95,6 +96,10 @@ for i in "$@"; do
         OPUS_SUPPORT=true
         shift
         ;;
+        -bcg729 | --bcg729 | bcg729)
+        BCG729_SUPPORT=true
+        shift
+        ;;
         -h264 | --h264 | h264)
         H264_SUPPORT=true
         shift
@@ -120,7 +125,7 @@ for i in "$@"; do
         shift
         ;;
         -v | --version | version)
-        echo "PJSIP Compile script version: 1.0.0"
+        echo "PJSIP Compile script version: 2.0.0"
         exit 1
         shift
         ;;
@@ -141,6 +146,8 @@ function show_help () {
     echo " -h264, --h264, h264          Wheter to include h264/video support in PJSIP.  (default: not build)"
     echo
     echo " -ssl, --ssl, ssl             Include SSL for encrypted calling. (default: not build)"
+    echo
+    echo " -bcg729, --bcg729, bcg729    Include BCG729 codecs. (default: not build)"
     echo
     echo " -opus, --opus, opus          Support for the OPUS codec. (default: not build)"
     echo
@@ -184,6 +191,38 @@ function spinner() {
         printf "\b\b\b\b\b\b"
     done
     printf "    \b\b\b\b"
+}
+
+
+function build_bcg729 () {
+    if [ $BCG729_SUPPORT = false ]; then
+        return
+    fi
+    echo "Use BCG729"
+    xcode_dev_path=`xcode-select -print-path`
+
+    for arch in ${USE_ARCHS[@]}
+    do
+        echo "-- BCG729: Compiling $arch"
+        g729_extra_cflags="-arch $arch"
+        if [ "$arch" == "i386" ] || [ "$arch" == "x86_64" ]; then
+            os_platform="iPhoneSimulator"
+            g729_extra_flags="--with-pic"
+            g729_extra_config="--host=$arch-apple-darwin"
+        else
+            os_platform="iPhoneOS"
+            g729_extra_config="--host=arm-apple-darwin"
+        fi
+
+        mkdir -p "${$BCG729_BUILD_DIR}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"
+
+        cmake . -DCMAKE_INSTALL_PREFIX="${$BCG729_BUILD_DIR}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH=ON
+
+        make CFLAGS="$CFLAGS ${opus_opt_cflags} -fPIE -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=${arch}" || exit  
+
+        make install 
+    done
+
 }
 
 function build_h264 () {
@@ -570,6 +609,9 @@ function _collect () {
         cp -v ./external/openssl_ios/bin/*$1.sdk/lib/*.a  $BASE_DIR/lib/$1
     fi
 
+    if [ -d ./external/bcg729/*$1.sdk/lib/ ]; then
+        cp -v ./external/bcg729/*$1.sdk/lib/*.a $BASE_DIR/lib/$1
+    fi
     # if [ $INDEPENDENT_WEBRTC = true ]; then
     #     rm ./pjproject/third_party/lib/libsrtp*.a
     # fi
@@ -731,6 +773,7 @@ fi
 if [ $SHOW_HELP = true ]; then
     show_help
 else 
+    build_bcg729
     build_h264
     build_ssl
     build_opus
