@@ -200,19 +200,20 @@ function build_bcg729 () {
     fi
     echo "Use BCG729"
     xcode_dev_path=`xcode-select -print-path`
+    
+    cd $BCG729_BUILD_DIR
 
     for arch in ${USE_ARCHS[@]}
     do
         echo "-- BCG729: Compiling $arch"
         g729_extra_cflags="-arch $arch"
         if [ "$arch" == "i386" ] || [ "$arch" == "x86_64" ]; then
-            os_platform="iPhoneSimulator"
-            g729_extra_flags="--with-pic"
-            g729_extra_config="--host=$arch-apple-darwin"
+            os_platform="iPhoneSimulator" 
         else
-            os_platform="iPhoneOS"
-            g729_extra_config="--host=arm-apple-darwin"
+            os_platform="iPhoneOS" 
         fi
+
+        sed -i'' -e 's/dd_definitions("-Wall")/dd_definitions("-Wall -march=${arch}")/g' CMakeLists.txt
 
         mkdir -p "${$BCG729_BUILD_DIR}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"
 
@@ -518,6 +519,17 @@ function _build () {
         export CFLAGS="${CFLAGS} -fembed-bitcode"
     fi
 
+    if [ $BCG729_SUPPORT = true ]; then
+        if [ "$arch" != "i386" ] && [ "$arch" != "x86_64" ]; then
+            configure="$configure --with-bcg729=${BCG729_BUILD_DIR}/"
+            export CFLAGS="${CFLAGS} -I${BCG729_BUILD_DIR}/include/bcg729"
+            export LDFLAGS="${LDFLAGS} -L${BCG729_BUILD_DIR}/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        else
+            configure="$configure --with-bcg729=${SSL_BUILD_DIR}/"
+            export CFLAGS="${CFLAGS} -I${SSL_BUILD_DIR}/include/bcg729"
+            export LDFLAGS="${LDFLAGS} -L${SSL_BUILD_DIR}/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        fi
+    fi
     
     if [ $SSL_SUPPORT = true ]; then 
         if [ "$arch" != "i386" ] && [ "$arch" != "x86_64" ]; then
