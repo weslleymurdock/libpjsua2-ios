@@ -210,16 +210,16 @@ function build_bcg729 () {
             os_platform="iPhoneSimulator" 
             mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"        
             cmake . -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH=ON
-            make C_FLAGS="$C_FLAGS -O2 -m64 -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=x86-64" || exit  
+            make C_FLAGS="$C_FLAGS -O2 -m64 -mios-simulator-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=x86-64" || exit  
 
         else
             os_platform="iPhoneOS"  
             mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"            
             cmake . -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH=ON
-            make C_FLAGS="$C_FLAGS -fPIE -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=${arch}" || exit  
+            make C_FLAGS="$C_FLAGS -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=${arch}" || exit  
         fi
         make install 
-        lipo -info "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk/lib/*.a"
+        lipo -info "external/bcg729/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk/lib/*.a"
     done
 
 }
