@@ -218,8 +218,8 @@ function build_bcg729 () {
             cmake . -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH=ON
             make C_FLAGS="$C_FLAGS -fPIE -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=${arch}" || exit  
         fi
-        lipo -info "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk/lib/*.a"
         make install 
+        lipo -info "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk/lib/*.a"
     done
 
 }
