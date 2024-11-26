@@ -22,6 +22,7 @@ export CLEAN_PJSIP_SRC=true
 export SSL_SUPPORT=false
 export OPUS_SUPPORT=false
 export H264_SUPPORT=false
+export BCG729_SUPPORT=false
 export INDEPENDENT_WEBRTC=false
 export ENABLE_ZRTP=false
 export HAS_BITCODE=true
@@ -48,7 +49,7 @@ export SSL_BUILD_DIR="$BUILD_DIR/openssl_ios"
 export ZRTP_BUILD_DIR="$BUILD_DIR/zrtp"
 export OPUS_BUILD_DIR="$BUILD_DIR/opus"
 export H264_BUILD_DIR="$BUILD_DIR/openh264"
-
+export BCG729_BUILD_DIR="$BUILD_DIR/bcg729"
 export XCODE_SIMULATOR_DEV_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
 export XCODE_DEVICE_DEV_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
 
@@ -95,6 +96,10 @@ for i in "$@"; do
         OPUS_SUPPORT=true
         shift
         ;;
+        -bcg729 | --bcg729 | bcg729)
+        BCG729_SUPPORT=true
+        shift
+        ;;
         -h264 | --h264 | h264)
         H264_SUPPORT=true
         shift
@@ -120,7 +125,7 @@ for i in "$@"; do
         shift
         ;;
         -v | --version | version)
-        echo "PJSIP Compile script version: 1.0.0"
+        echo "PJSIP Compile script version: 2.0.0"
         exit 1
         shift
         ;;
@@ -141,6 +146,8 @@ function show_help () {
     echo " -h264, --h264, h264          Wheter to include h264/video support in PJSIP.  (default: not build)"
     echo
     echo " -ssl, --ssl, ssl             Include SSL for encrypted calling. (default: not build)"
+    echo
+    echo " -bcg729, --bcg729, bcg729    Include BCG729 codecs. (default: not build)"
     echo
     echo " -opus, --opus, opus          Support for the OPUS codec. (default: not build)"
     echo
@@ -184,6 +191,38 @@ function spinner() {
         printf "\b\b\b\b\b\b"
     done
     printf "    \b\b\b\b"
+}
+
+
+function build_bcg729 () {
+    if [ $BCG729_SUPPORT = false ]; then
+        return
+    fi
+    echo "Use BCG729"
+    xcode_dev_path=`xcode-select -print-path`
+    
+    cd $BCG729_BUILD_DIR
+
+    for arch in ${USE_ARCHS[@]}
+    do
+        echo "-- BCG729: Compiling $arch" 
+        if [ "$arch" == "x86_64" ]; then
+            os_platform="iPhoneSimulator" 
+            mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"        
+            cmake . -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH=ON
+            make C_FLAGS="$C_FLAGS -O2 -m64 -mios-simulator-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=x86-64" || exit  
+
+        else
+            os_platform="iPhoneOS"  
+            mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"            
+            cmake . -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH=ON
+            make C_FLAGS="$C_FLAGS -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=${arch}" || exit  
+        fi
+        make install 
+    done
+    lipo -info "$BCG729_BUILD_DIR/iPhoneSimulator17.2-x86_64.sdk/lib/libbcg729.a"
+    lipo -info "$BCG729_BUILD_DIR/iPhoneOS17.2-arm64.sdk/lib/libbcg729.a"
+
 }
 
 function build_h264 () {
@@ -275,7 +314,7 @@ function build_opus () {
         return
     fi
  
-    opus_version="1.3.1"
+    opus_version="1.4"
     opus_opt_cflags="-Ofast -flto -g"
     opus_opt_ldflags="-flto"
     opus_opt_config_args=""
@@ -402,6 +441,10 @@ function config_site () {
         echo "#define PJMEDIA_HAS_OPUS_CODEC 1" >> "$PJSIP_CONFIG_SITE_H"
     fi
 
+    if [ $BCG729_SUPPORT = true ]; then
+        echo "#define PJMEDIA_HAS_BCG729 1" >> "$PJSIP_CONFIG_SITE_H"
+    fi
+
     while IFS=',' read -ra CONFIG_SITE_OPTION; do
         for i in "${CONFIG_SITE_OPTION[@]}"; do
             echo "#define $i" >> $PJSIP_CONFIG_SITE_H
@@ -479,6 +522,17 @@ function _build () {
         export CFLAGS="${CFLAGS} -fembed-bitcode"
     fi
 
+    if [ $BCG729_SUPPORT = true ]; then
+        if [ "$arch" != "i386" ] && [ "$arch" != "x86_64" ]; then
+            configure="$configure --with-bcg729=${BCG729_BUILD_DIR}/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk"
+            export CFLAGS="${CFLAGS} -I${BCG729_BUILD_DIR}/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/include/bcg729"
+            export LDFLAGS="${LDFLAGS} -L${BCG729_BUILD_DIR}/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        else
+            configure="$configure --with-bcg729=${BCG729_BUILD_DIR}/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk"
+            export CFLAGS="${CFLAGS} -I${BCG729_BUILD_DIR}/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include/bcg729"
+            export LDFLAGS="${LDFLAGS} -L${BCG729_BUILD_DIR}/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
+        fi
+    fi
     
     if [ $SSL_SUPPORT = true ]; then 
         if [ "$arch" != "i386" ] && [ "$arch" != "x86_64" ]; then
@@ -520,9 +574,11 @@ function _build () {
 
     ARCH="-arch $arch " $configure #>> $arch_log 2>&1 || exit
     echo "make dep"
-    make dep >> $arch_log 2>&1 || exit
+    make dep >> $arch_log 2>&1 &
+            spinner $! || exit
     echo "make " 
-    make >> $arch_log 2>&1 || exit
+    make >> $arch_log 2>&1 &
+            spinner $! || exit
 
     if [ $SSL_SUPPORT = true ]; then
         if [ $ENABLE_ZRTP = true ]; then
@@ -539,8 +595,12 @@ function _build () {
     #TODO: fix libs not found on runner path because they are in temp
     echo "Making swig "
     cd "$PJSIP_SRC_DIR/pjsip-apps/src/swig"
-    make clean
-    make
+    make clean >> $arch_log 2>&1 &
+            spinner $! || exit
+
+    make >> $arch_log 2>&1 &
+            spinner $! || exit
+
     
     echo "Done building for $arch"
     echo "============================="
@@ -570,6 +630,9 @@ function _collect () {
         cp -v ./external/openssl_ios/bin/*$1.sdk/lib/*.a  $BASE_DIR/lib/$1
     fi
 
+    if [ -d ./external/bcg729/*$1.sdk/lib/ ]; then
+        cp -v ./external/bcg729/*$1.sdk/lib/*.a $BASE_DIR/lib/$1
+    fi
     # if [ $INDEPENDENT_WEBRTC = true ]; then
     #     rm ./pjproject/third_party/lib/libsrtp*.a
     # fi
@@ -731,6 +794,7 @@ fi
 if [ $SHOW_HELP = true ]; then
     show_help
 else 
+    build_bcg729
     build_h264
     build_ssl
     build_opus
