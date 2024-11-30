@@ -12,8 +12,8 @@ export PATH_REPO="/Users/runner/work/libpjsua2-ios/libpjsua2-ios"
 
 export BASE_DIR=`pwd -P`
 
-export MIN_IOS_VERSION="11.0"
-export IOS_SDK_VERSION="17.2"
+export MIN_IOS_VERSION="12.2"
+export IOS_SDK_VERSION="18.1"
 export AVAILABLE_ARCHS
 export USE_ARCHS=()
 
@@ -208,21 +208,25 @@ function build_bcg729 () {
         echo "-- BCG729: Compiling $arch" 
         if [ "$arch" == "x86_64" ]; then
             os_platform="iPhoneSimulator" 
-            mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"        
-            cmake . -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH=ON
-            make C_FLAGS="$C_FLAGS -O2 -m64 -mios-simulator-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=x86-64" || exit  
-
-        else
+            C_FLAGS="$C_FLAGS -O2 -m64 -mios-simulator-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk "
+        else 
             os_platform="iPhoneOS"  
-            mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"            
-            cmake . -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH=ON
-            make C_FLAGS="$C_FLAGS -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk -march=${arch}" || exit  
         fi
-        make install 
-    done
-    lipo -info "$BCG729_BUILD_DIR/iPhoneSimulator17.2-x86_64.sdk/lib/libbcg729.a"
-    lipo -info "$BCG729_BUILD_DIR/iPhoneOS17.2-arm64.sdk/lib/libbcg729.a"
 
+        if [ -d "${BCG729_BUILD_DIR}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"] ]; then
+            rm -rf "${BCG729_BUILD_DIR}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" 
+        fi
+
+        if [ -d "${BCG729_BUILD_DIR}/CMakeFiles" ]; then
+            rm -rf "${BCG729_BUILD_DIR}/CMakeFiles"
+            rm -rf "${BCG729_BUILD_DIR}/CMakeCache.txt"
+        fi
+        mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"        
+        cmake -DCMAKE_OSX_ARCHITECTURES=${arch} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH="ON" -DCMAKE_MAKE_PROGRAM:PATH=$(which make) -D CMAKE_C_COMPILER=`which gcc` .
+        make  || exit 
+        make install 
+        lipo -info "$BCG729_BUILD_DIR/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk/lib/libbcg729.a"
+    done
 }
 
 function build_h264 () {
@@ -261,8 +265,6 @@ function build_h264 () {
     if [ ! -d "${H264_BUILD_DIR}/lib" ]; then
         mkdir -p "${H264_BUILD_DIR}/lib"
     fi
-    echo "--- Lipo openH264"
-    xcrun -sdk iphoneos lipo ${h264_lipo_args} -create -output "${H264_BUILD_DIR}/lib/libopenh264.a" || exit
     echo "Done compiling openh264"
 }
 
@@ -282,8 +284,8 @@ function build_ssl () {
             targets="${targets} ios-cross-$arch"
         fi
     done
-
-    ./build-libssl.sh --version=1.1.1d --archs="${USE_ARCHS[*]// /\s}" --ios-min-sdk=${MIN_IOS_VERSION} --targets="$targets"|| exit
+    
+    CURL_OPTIONS="-L" ./build-libssl.sh --version=1.1.1s --archs="${USE_ARCHS[*]// /\s}" --ios-min-sdk=${MIN_IOS_VERSION} --targets="$targets"|| exit
     
     popd > /dev/null
     echo "Using SSL..."
@@ -513,8 +515,6 @@ function _build () {
 
     arch=$1
     arch_log="$PJSIP_LOGS_DIR/$arch.log"
-
-    #clean_pjsip_libs $arch
 
     configure="./configure-iphone"
 
