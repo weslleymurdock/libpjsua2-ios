@@ -1,1 +1,4 @@
 .DS_Store
+lib/**/*.a
+pjsip/logs/*
+pjsip/config_site.h
