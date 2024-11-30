@@ -9,13 +9,17 @@ on:
       
 jobs:
   libpjsua2-ios:
-    runs-on: macos-13
+    runs-on: macos-latest
     name: iOS Build
     permissions:
           contents: write
     steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
       - name: Selecting Xcode Version
-        run: sudo xcode-select -switch /Applications/Xcode_15.2.app
+        run: sudo xcode-select -switch /Applications/Xcode_16.1.app
         
       - name: Running Xcode version Is?
         run: /usr/bin/xcodebuild -version
@@ -27,7 +31,7 @@ jobs:
       - name: build all ios archs
         run: |
           brew install nasm autoconf automake libtool swig
-          sudo mv /Applications/Xcode_15.1.app /Applications/Xcode.app
+          sudo mv /Applications/Xcode_16.1.app /Applications/Xcode.app
           sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
           ./build h264 opus ssl bcg729 -a=x86_64,arm64 --ci
       - uses: actions/upload-artifact@v3
