@@ -17,7 +17,7 @@ jobs:
         xcode-version: latest-stable
 
     - name: Selecting Xcode Version
-      run: sudo xcode-select -switch /Applications/Xcode_16.1.app
+      run: sudo xcode-select -switch /Applications/Xcode.app
       
     - name: Running Xcode version Is?
       run: /usr/bin/xcodebuild -version
@@ -29,7 +29,6 @@ jobs:
     - name: build pjsip with opus bcg729 and h264
       run: |
         brew install nasm autoconf automake libtool swig
-        sudo mv /Applications/Xcode_16.1.app /Applications/Xcode.app
         sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
         ./build h264 opus ssl bcg729 -a=x86_64,arm64 --ci
         tar -zcvf libpjsua2.tar.gz ./libpjsua2
