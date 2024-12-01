@@ -34,7 +34,7 @@ An android version is available [here](https://github.com/weslleymurdock/libpjsu
 - [x] bcg729 [![bcg729](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/BelledonneCommunications/bcg729)
 - [x] zrtp [![zrtp](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/wernerd/ZRTP4PJ) (currently not in use by ios workflow)
 
-### Remaining TODO
+### Remaining TODO - DONE
  
 - [x] Port PJSIP Xamarin app to MAUI (Added on PR to pjsip repository samples) 
 
