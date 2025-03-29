@@ -13,7 +13,7 @@ export PATH_REPO="/Users/runner/work/libpjsua2-ios/libpjsua2-ios"
 export BASE_DIR=`pwd -P`
 
 export MIN_IOS_VERSION="12.2"
-export IOS_SDK_VERSION="18.1"
+export IOS_SDK_VERSION="18.2"
 export AVAILABLE_ARCHS
 export USE_ARCHS=()
 
@@ -28,7 +28,7 @@ export ENABLE_ZRTP=false
 export HAS_BITCODE=false
 export HAS_IPV6=false
 export SHOW_HELP=false
-export PJSIP_VERSION="2.14.1"
+export PJSIP_VERSION="2.15.1"
 export PJSIP_BASE_URL="https://github.com/pjsip/pjproject.git"
 export PJSIP_DIR="$BASE_DIR/pjsip"
 export PJSIP_FINAL_LIB_DIR="$BASE_DIR/lib"
@@ -205,27 +205,33 @@ function build_bcg729 () {
 
     for arch in ${USE_ARCHS[@]}
     do
-        echo "-- BCG729: Compiling $arch" 
         if [ "$arch" == "x86_64" ]; then
-            os_platform="iPhoneSimulator" 
-            C_FLAGS="$C_FLAGS -O2 -m64 -mios-simulator-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk "
-        else 
-            os_platform="iPhoneOS"  
-        fi
+              os_platform="iPhoneSimulator"
+              C_FLAGS="$C_FLAGS -O2 -m64 -mios-simulator-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk"
+          else
+              os_platform="iPhoneOS"
+              C_FLAGS="$C_FLAGS -O2 -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot ${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk"
+          fi
+ 
+          rm -rf "${BCG729_BUILD_DIR}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" 
+          rm -rf "${BCG729_BUILD_DIR}/CMakeFiles" "${BCG729_BUILD_DIR}/CMakeCache.txt"
 
-        if [ -d "${BCG729_BUILD_DIR}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"] ]; then
-            rm -rf "${BCG729_BUILD_DIR}/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" 
-        fi
+          # Criar diretório de instalação
+          mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"
 
-        if [ -d "${BCG729_BUILD_DIR}/CMakeFiles" ]; then
-            rm -rf "${BCG729_BUILD_DIR}/CMakeFiles"
-            rm -rf "${BCG729_BUILD_DIR}/CMakeCache.txt"
-        fi
-        mkdir -p "${os_platform}${IOS_SDK_VERSION}-${arch}.sdk"        
-        cmake -DCMAKE_OSX_ARCHITECTURES=${arch} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" -DCMAKE_SKIP_INSTALL_RPATH="ON" -DCMAKE_MAKE_PROGRAM:PATH=$(which make) -D CMAKE_C_COMPILER=`which gcc` .
-        make  || exit 
-        make install 
-        lipo -info "$BCG729_BUILD_DIR/${os_platform}${IOS_SDK_VERSION}-${arch}.sdk/lib/libbcg729.a"
+          # Executar o CMake com configurações específicas para iOS
+          cmake -DCMAKE_OSX_ARCHITECTURES=$arch \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_INSTALL_PREFIX="${os_platform}${IOS_SDK_VERSION}-${arch}.sdk" \
+                -DCMAKE_SKIP_INSTALL_RPATH="ON" \
+                -DCMAKE_MAKE_PROGRAM:PATH=$(which make) \
+                -DCMAKE_C_COMPILER=$(which clang) \
+                -DCMAKE_OSX_SYSROOT="${xcode_dev_path}/Platforms/${os_platform}.platform/Developer/SDKs/${os_platform}.sdk" \
+                .
+
+          # Compilar e instalar
+          make || exit 1
+          make install
     done
 }
 
@@ -525,11 +531,11 @@ function _build () {
     if [ $BCG729_SUPPORT = true ]; then
         if [ "$arch" != "i386" ] && [ "$arch" != "x86_64" ]; then
             configure="$configure --with-bcg729=${BCG729_BUILD_DIR}/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk"
-            export CFLAGS="${CFLAGS} -I${BCG729_BUILD_DIR}/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/include/bcg729"
+            export CFLAGS="${CFLAGS} -I${BCG729_BUILD_DIR}/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/include"
             export LDFLAGS="${LDFLAGS} -L${BCG729_BUILD_DIR}/iPhoneOS${IOS_SDK_VERSION}-${arch}.sdk/lib"
         else
             configure="$configure --with-bcg729=${BCG729_BUILD_DIR}/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk"
-            export CFLAGS="${CFLAGS} -I${BCG729_BUILD_DIR}/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include/bcg729"
+            export CFLAGS="${CFLAGS} -I${BCG729_BUILD_DIR}/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/include"
             export LDFLAGS="${LDFLAGS} -L${BCG729_BUILD_DIR}/iPhoneSimulator${IOS_SDK_VERSION}-${arch}.sdk/lib"
         fi
     fi

@@ -14,26 +14,19 @@ jobs:
     permissions:
           contents: write
     steps:
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
-
-      - name: Selecting Xcode Version
-        run: sudo xcode-select -switch /Applications/Xcode.app
-        
-      - name: Running Xcode version Is?
-        run: /usr/bin/xcodebuild -version
-      
+       
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+      
       - name: build all ios archs
         run: |
           brew install nasm autoconf automake libtool swig
           sed -i'' -e 's/xamarin/maui/g' ${{ github.workspace }}/pjproject/pjsip-apps/src/swig/csharp/Makefile
           ./build h264 opus ssl bcg729 -a=x86_64,arm64  
-      - uses: actions/upload-artifact@v3
+      
+      - uses: actions/upload-artifact@v4
         with:
           name: libpjsua2-ios
           path: ${{ github.workspace }}/libpjsua2
